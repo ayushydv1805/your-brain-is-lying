@@ -22,6 +22,18 @@ A fast-paced cognitive challenge game built with React + Vite.
 - Run history count
 - Detailed reaction breakdown after each run
 
+### Phase 3 — Memory engine
+- Fully playable memory challenge
+- Five rounds per run
+- Fresh random symbol sequence every round
+- Exact-order recall
+- Incorrect-order detection
+- Sequence length scales with player level
+- Viewing time gets shorter at higher levels
+- Memory score, accuracy, rating, and XP
+- Persistent best memory score
+- Dedicated memory result screen
+
 ## Development
 
 ```bash
@@ -36,15 +48,12 @@ npm run build
 npm run preview
 ```
 
-Vite uses `dist` as the production output directory by default/configuration. citeturn0search0
-
 ## Planned
 
-- Memory challenge
 - Attention challenge
 - Logic challenge
 - Impulse-control challenge
-- Procedural question generation
+- More procedural question generators
 - Higher difficulty tiers
 - Brain report across all skills
 - Achievements and streaks
