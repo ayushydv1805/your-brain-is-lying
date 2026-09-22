@@ -12,7 +12,7 @@ const PHASES = {
 export default function MemoryTest({ level, onFinish, onExit }) {
   const [phase, setPhase] = useState(PHASES.READY);
   const [round, setRound] = useState(1);
-  const [question, setQuestion] = useState(() => createMemoryRound(level));
+  const [question, setQuestion] = useState(() => createMemoryRound(level, 1));
   const [selected, setSelected] = useState([]);
   const [score, setScore] = useState(0);
   const [roundCorrect, setRoundCorrect] = useState(null);
@@ -34,9 +34,9 @@ export default function MemoryTest({ level, onFinish, onExit }) {
     };
   }, [clearTimer]);
 
-  const startRound = useCallback(() => {
+  const startRound = useCallback((roundNumber = round) => {
     clearTimer();
-    const nextQuestion = createMemoryRound(level);
+    const nextQuestion = createMemoryRound(level, roundNumber);
 
     setQuestion(nextQuestion);
     setSelected([]);
@@ -47,14 +47,14 @@ export default function MemoryTest({ level, onFinish, onExit }) {
       if (!mountedRef.current) return;
       setPhase(PHASES.RECALL);
     }, nextQuestion.displayTime);
-  }, [clearTimer, level]);
+  }, [clearTimer, level, round]);
 
   const startGame = () => {
     setRound(1);
     setScore(0);
     setSelected([]);
     setRoundCorrect(null);
-    startRound();
+    startRound(1);
   };
 
   const handleSymbolClick = (symbol) => {
@@ -104,11 +104,12 @@ export default function MemoryTest({ level, onFinish, onExit }) {
       return;
     }
 
-    setRound((value) => value + 1);
-    startRound();
+    const nextRound = round + 1;
+    setRound(nextRound);
+    startRound(nextRound);
   };
 
-  const targetLength = getMemoryLength(level);
+  const targetLength = getMemoryLength(level, round);
 
   return (
     <section className="game-screen memory-game-screen">
@@ -116,7 +117,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
         <button className="game-back" onClick={onExit}>← Exit</button>
 
         <div className="game-progress">
-          <span>MEMORY TEST</span>
+          <span>MEMORY TEST · 5 ROUNDS</span>
           <div className="progress-dots">
             {Array.from({ length: GAME_CONFIG.totalMemoryRounds }, (_, index) => (
               <i
@@ -141,8 +142,8 @@ export default function MemoryTest({ level, onFinish, onExit }) {
           <span className="section-kicker">TEST 02 · MEMORY</span>
           <h1>See it.<br /><span>Hold it.</span></h1>
           <p>
-            A sequence appears for a moment. Then it disappears.
-            Rebuild it in exactly the same order.
+            Five rounds. Each round gets harder with a fresh sequence.
+            Rebuild every sequence in exactly the same order.
           </p>
         </div>
 
@@ -154,7 +155,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
               {phase === PHASES.RECALL && 'RECALL'}
               {phase === PHASES.RESULT && (roundCorrect ? 'CORRECT' : 'NOT QUITE')}
             </span>
-            <b>SEQUENCE {question.length}</b>
+            <b>{question.length} SYMBOLS</b>
           </div>
 
           <div className="memory-sequence">
@@ -196,7 +197,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
               <strong>{round} / {GAME_CONFIG.totalMemoryRounds}</strong>
             </div>
             <div>
-              <span>SEQUENCE</span>
+              <span>SEQUENCE LENGTH</span>
               <strong>{targetLength} symbols</strong>
             </div>
             <div>
@@ -211,7 +212,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
         </div>
 
         <div className="game-instruction">
-          {phase === PHASES.READY && 'Your first click starts the memory challenge.'}
+          {phase === PHASES.READY && 'Your first click starts the 5-round memory challenge.'}
           {phase === PHASES.MEMORIZE && 'Memorize the exact order. The sequence will disappear.'}
           {phase === PHASES.RECALL && 'Click the symbols in the exact order you saw them.'}
           {phase === PHASES.RESULT && (
@@ -224,7 +225,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
         <div className="difficulty-note">
           <span>ADAPTIVE MEMORY</span>
           <b>{targetLength} symbols</b>
-          <small>Level {level} · fresh sequence every round</small>
+          <small>Round {round}/5 · Level {level} · fresh sequence</small>
         </div>
 
         {phase === PHASES.READY && (
