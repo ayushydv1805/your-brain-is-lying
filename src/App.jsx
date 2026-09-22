@@ -202,7 +202,7 @@ function App() {
                 <span className="option option-b">WATCH</span>
                 <span className="option option-c">REACT</span>
               </div>
-              <div className="preview-timer"><span>5 ROUNDS</span><div><b /></div></div>
+              <div className="preview-timer"><span>5 ROUNDS · 4–8 SYMBOLS</span><div><b /></div></div>
               <span className="preview-hint">Click to play →</span>
             </button>
 
@@ -305,9 +305,9 @@ function App() {
               <span className="section-kicker">PHASE 3 · MEMORY ENGINE</span>
               <h2>Your memory gets <span>no second chance.</span></h2>
               <p>
-                A fresh symbol sequence appears every round, then disappears.
-                Rebuild it in order. Higher levels show longer sequences and
-                tighter viewing windows.
+                Five rounds. A fresh symbol sequence appears every round, then disappears.
+                Each round can become longer and the viewing window gets tighter
+                as the challenge progresses.
               </p>
               <div className="about-actions">
                 <button className="primary-button" onClick={startMemory}>
