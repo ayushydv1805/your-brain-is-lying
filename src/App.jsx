@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import './App.css';
+import ReactionTest from './components/ReactionTest';
+import GameResult from './components/GameResult';
+import { getLevelFromXp } from './game/gameConfig';
+import { loadPlayer, savePlayer } from './game/storage';
 
 const tests = [
   {
     icon: '⚡',
     title: 'Reaction',
     text: 'How quickly can you react when your brain is not ready?',
+    playable: true,
   },
   {
     icon: '🧠',
@@ -36,11 +41,85 @@ const levels = [
 ];
 
 function App() {
+  const [view, setView] = useState('home');
   const [showRoadmap, setShowRoadmap] = useState(false);
+  const [player, setPlayer] = useState(loadPlayer);
+  const [result, setResult] = useState(null);
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const startReaction = () => {
+    setResult(null);
+    setView('reaction');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const finishReaction = (runResult) => {
+    const current = loadPlayer();
+    const nextXp = current.xp + runResult.xp;
+    const nextBest =
+      current.bestReaction === null
+        ? runResult.best
+        : Math.min(current.bestReaction, runResult.best);
+
+    const nextPlayer = {
+      ...current,
+      xp: nextXp,
+      level: getLevelFromXp(nextXp),
+      bestReaction: nextBest,
+      totalRuns: current.totalRuns + 1,
+      lastRun: {
+        average: runResult.average,
+        best: runResult.best,
+        at: new Date().toISOString(),
+      },
+    };
+
+    savePlayer(nextPlayer);
+    setPlayer(nextPlayer);
+    setResult(runResult);
+    setView('result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goHome = () => {
+    setView('home');
+    setResult(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (view === 'reaction') {
+    return (
+      <div className="app-shell game-shell">
+        <div className="noise" aria-hidden="true" />
+        <div className="orb orb-one" aria-hidden="true" />
+        <div className="orb orb-two" aria-hidden="true" />
+        <ReactionTest
+          level={player.level}
+          onFinish={finishReaction}
+          onExit={goHome}
+        />
+      </div>
+    );
+  }
+
+  if (view === 'result' && result) {
+    return (
+      <div className="app-shell result-shell-page">
+        <div className="noise" aria-hidden="true" />
+        <div className="orb orb-one" aria-hidden="true" />
+        <div className="orb orb-two" aria-hidden="true" />
+        <GameResult
+          result={result}
+          player={player}
+          onAgain={startReaction}
+          onHome={goHome}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -63,8 +142,8 @@ function App() {
           <button onClick={() => scrollTo('about')}>How it works</button>
         </nav>
 
-        <button className="nav-cta" onClick={() => scrollTo('about')}>
-          Explore
+        <button className="nav-cta" onClick={startReaction}>
+          Play test
           <span>↗</span>
         </button>
       </header>
@@ -88,8 +167,8 @@ function App() {
             </p>
 
             <div className="hero-actions">
-              <button className="primary-button" onClick={() => scrollTo('tests')}>
-                <span>Explore the tests</span>
+              <button className="primary-button" onClick={startReaction}>
+                <span>Start the challenge</span>
                 <span className="button-arrow">→</span>
               </button>
               <button className="ghost-button" onClick={() => setShowRoadmap((v) => !v)}>
@@ -109,42 +188,43 @@ function App() {
           <div className="brain-stage" aria-label="Game preview">
             <div className="stage-glow" />
             <div className="scan-line" />
-            <div className="preview-card preview-main">
+            <button className="preview-card preview-main preview-play" onClick={startReaction}>
               <div className="preview-top">
-                <span>LEVEL 04</span>
-                <span className="live-pill"><i /> LIVE</span>
+                <span>LEVEL {String(player.level).padStart(2, '0')}</span>
+                <span className="live-pill"><i /> PLAYABLE</span>
               </div>
-              <div className="preview-title">What color do you see?</div>
-              <div className="stroop-word">BLUE</div>
+              <div className="preview-title">How fast can you react?</div>
+              <div className="stroop-word">READY?</div>
               <div className="preview-options">
-                <span className="option option-a">RED</span>
-                <span className="option option-b">BLUE</span>
-                <span className="option option-c">GREEN</span>
+                <span className="option option-a">WAIT</span>
+                <span className="option option-b">WATCH</span>
+                <span className="option option-c">REACT</span>
               </div>
               <div className="preview-timer">
-                <span>00:07.42</span>
+                <span>5 ROUNDS</span>
                 <div><b /></div>
               </div>
-            </div>
+              <span className="preview-hint">Click to play →</span>
+            </button>
 
             <div className="floating-card score-card">
-              <span className="floating-label">BRAIN SCORE</span>
-              <strong>847</strong>
-              <small>+42 this run</small>
+              <span className="floating-label">BRAIN XP</span>
+              <strong>{player.xp}</strong>
+              <small>level {player.level}</small>
             </div>
 
             <div className="floating-card reaction-card">
               <span className="mini-icon">⚡</span>
               <div>
-                <small>REACTION</small>
-                <strong>287 ms</strong>
+                <small>BEST REACTION</small>
+                <strong>{player.bestReaction ? player.bestReaction + ' ms' : '— ms'}</strong>
               </div>
             </div>
 
             <div className="floating-card streak-card">
-              <span>🔥</span>
-              <strong>7</strong>
-              <small>streak</small>
+              <span>🧪</span>
+              <strong>{player.totalRuns}</strong>
+              <small>runs</small>
             </div>
           </div>
         </section>
@@ -156,10 +236,10 @@ function App() {
               <h2>Start simple. Get brutally difficult.</h2>
             </div>
             <div className="roadmap-steps">
-              <span><b>01</b> Landing &amp; game shell</span>
-              <span><b>02</b> Test engine</span>
+              <span><b>01</b> Landing &amp; game shell ✓</span>
+              <span><b>02</b> Reaction engine ✓</span>
               <span><b>03</b> Random questions</span>
-              <span><b>04</b> Levels + XP</span>
+              <span><b>04</b> Levels + XP ✓</span>
             </div>
           </section>
         )}
@@ -178,12 +258,21 @@ function App() {
 
           <div className="test-grid">
             {tests.map((test, index) => (
-              <article className="test-card" key={test.title}>
+              <article
+                className={'test-card ' + (test.playable ? 'test-card-playable' : '')}
+                key={test.title}
+                onClick={test.playable ? startReaction : undefined}
+                role={test.playable ? 'button' : undefined}
+                tabIndex={test.playable ? 0 : undefined}
+                onKeyDown={test.playable ? (event) => {
+                  if (event.key === 'Enter' || event.key === ' ') startReaction();
+                } : undefined}
+              >
                 <div className="card-number">0{index + 1}</div>
                 <div className="test-icon">{test.icon}</div>
                 <h3>{test.title}</h3>
                 <p>{test.text}</p>
-                <span className="card-arrow">↗</span>
+                <span className="card-arrow">{test.playable ? 'PLAY ↗' : 'SOON'}</span>
               </article>
             ))}
           </div>
@@ -205,7 +294,7 @@ function App() {
             {levels.map(([number, title, text], index) => (
               <article className="level-card" key={number}>
                 <span className="level-number">{number}</span>
-                <div className="level-line"><span style={{ width: `${35 + index * 28}%` }} /></div>
+                <div className="level-line"><span style={{ width: (35 + index * 28) + '%' }} /></div>
                 <h3>{title}</h3>
                 <p>{text}</p>
               </article>
@@ -232,35 +321,35 @@ function App() {
         <section className="section about-section" id="about">
           <div className="about-panel">
             <div className="about-copy">
-              <span className="section-kicker">THE IDEA</span>
+              <span className="section-kicker">PHASE 2 · FIRST TEST</span>
               <h2>Fast answers aren&apos;t always <span>smart answers.</span></h2>
               <p>
-                Your Brain Is Lying turns classic cognitive challenges into a
-                progression game. React. Remember. Focus. Think. Control the urge
-                to click.
+                The first playable challenge measures reaction time across five
+                unpredictable rounds. Your result becomes your baseline and earns
+                XP toward harder levels.
               </p>
-              <button className="primary-button" onClick={() => scrollTo('home')}>
-                <span>Back to top</span>
-                <span className="button-arrow">↑</span>
+              <button className="primary-button" onClick={startReaction}>
+                <span>Test my reaction</span>
+                <span className="button-arrow">→</span>
               </button>
             </div>
 
             <div className="stats-panel">
               <div>
-                <strong>∞</strong>
-                <span>question combinations</span>
+                <strong>{player.xp}</strong>
+                <span>current XP</span>
               </div>
               <div>
-                <strong>10+</strong>
-                <span>planned difficulty levels</span>
+                <strong>{player.level}</strong>
+                <span>current level</span>
               </div>
               <div>
-                <strong>05</strong>
-                <span>core brain skills</span>
+                <strong>{player.bestReaction ? player.bestReaction + 'ms' : '—'}</strong>
+                <span>best reaction</span>
               </div>
               <div>
-                <strong>01</strong>
-                <span>rule: don&apos;t trust yourself</span>
+                <strong>{player.totalRuns}</strong>
+                <span>completed runs</span>
               </div>
             </div>
           </div>
@@ -269,7 +358,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 1 · Foundation</span>
+        <span>Phase 2 · Reaction Engine</span>
       </footer>
     </div>
   );
