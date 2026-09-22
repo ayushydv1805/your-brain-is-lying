@@ -11,7 +11,7 @@ function shuffled(items) {
   return copy;
 }
 
-export function getMemoryLength(level) {
+export function getMemoryBaseLength(level) {
   if (level <= 2) return 4;
   if (level <= 4) return 5;
   if (level <= 6) return 6;
@@ -19,12 +19,22 @@ export function getMemoryLength(level) {
   return 8;
 }
 
-export function getMemoryDisplayTime(level) {
-  return Math.max(1100, 1800 - (Math.max(1, Math.min(level, 10)) - 1) * 80);
+export function getMemoryLength(level, round = 1) {
+  const safeRound = Math.max(1, Math.min(round, 5));
+  return Math.min(8, getMemoryBaseLength(level) + safeRound - 1);
 }
 
-export function createMemoryRound(level) {
-  const length = getMemoryLength(level);
+export function getMemoryDisplayTime(level, round = 1) {
+  const safeLevel = Math.max(1, Math.min(level, 10));
+  const safeRound = Math.max(1, Math.min(round, 5));
+  const levelPenalty = (safeLevel - 1) * 80;
+  const roundPenalty = (safeRound - 1) * 60;
+
+  return Math.max(1000, 1800 - levelPenalty - roundPenalty);
+}
+
+export function createMemoryRound(level, round = 1) {
+  const length = getMemoryLength(level, round);
   const sequence = shuffled(SYMBOLS).slice(0, length);
   const decoys = shuffled(SYMBOLS.filter((symbol) => !sequence.includes(symbol))).slice(
     0,
@@ -35,6 +45,6 @@ export function createMemoryRound(level) {
     sequence,
     options: shuffled([...sequence, ...decoys]),
     length,
-    displayTime: getMemoryDisplayTime(level),
+    displayTime: getMemoryDisplayTime(level, round),
   };
 }
