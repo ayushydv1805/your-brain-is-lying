@@ -19,10 +19,8 @@ export function getMemoryLength(level) {
   return 8;
 }
 
-export function getMemoryDisplayTime(length, level) {
-  const base = 850 + length * 260;
-  const levelPenalty = Math.max(0, level - 1) * 45;
-  return Math.max(1300, base - levelPenalty);
+export function getMemoryDisplayTime(level) {
+  return Math.max(1100, 1800 - (Math.max(1, Math.min(level, 10)) - 1) * 80);
 }
 
 export function createMemoryRound(level) {
@@ -37,6 +35,6 @@ export function createMemoryRound(level) {
     sequence,
     options: shuffled([...sequence, ...decoys]),
     length,
-    displayTime: getMemoryDisplayTime(length, level),
+    displayTime: getMemoryDisplayTime(level),
   };
 }
