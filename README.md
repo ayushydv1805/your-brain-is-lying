@@ -1,21 +1,51 @@
 # Your Brain Is Lying 🧠
 
-A fast-paced brain challenge game where reaction, memory, attention, logic, and impulse control are tested through progressively harder levels.
+A fast-paced cognitive challenge game built with React + Vite.
 
-## Phase 1
-- Premium landing page
-- Responsive layout
-- Product identity and visual system
-- Game roadmap
-- Ready for the game engine in Phase 2
+## Current build
+
+### Phase 1 — Foundation
+- Premium landing experience
+- Five cognitive skill categories
+- Progression concept
+- Responsive visual system
+
+### Phase 2 — First playable test
+- Reaction-time challenge
+- Five valid reaction rounds per run
+- Random signal timing
+- False-start detection
+- Millisecond reaction measurement
+- Adaptive timing based on player level
+- XP and level progression
+- Persistent personal best using localStorage
+- Run history count
+- Detailed reaction breakdown after each run
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+Vite uses `dist` as the production output directory by default/configuration. citeturn0search0
 
 ## Planned
-- Randomized question generators
-- Level progression and XP
-- Adaptive difficulty
-- Brain profile/report
-- Daily challenge
-- Achievements and streaks
-- Multiplayer and leaderboard support
 
-Built with React + Vite.
+- Memory challenge
+- Attention challenge
+- Logic challenge
+- Impulse-control challenge
+- Procedural question generation
+- Higher difficulty tiers
+- Brain report across all skills
+- Achievements and streaks
+- Multiplayer / leaderboard backend
