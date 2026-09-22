@@ -28,8 +28,8 @@ A fast-paced cognitive challenge game built with React + Vite.
 - Fresh random symbol sequence every round
 - Exact-order recall
 - Incorrect-order detection
-- Sequence length scales with player level
-- Viewing time gets shorter at higher levels
+- Sequence length increases across rounds
+- Viewing time tightens across rounds and levels
 - Memory score, accuracy, rating, and XP
 - Persistent best memory score
 - Dedicated memory result screen
