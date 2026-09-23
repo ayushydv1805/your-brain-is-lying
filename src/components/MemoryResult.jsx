@@ -1,5 +1,11 @@
+import {
+  GAME_CONFIG,
+  getLevelProgress,
+} from '../game/gameConfig';
+
 export default function MemoryResult({ result, player, onAgain, onHome }) {
-  const progress = Math.min(100, player.xp % 100);
+  const progress = getLevelProgress(player.xp);
+  const roundHistory = result.roundHistory ?? [];
 
   return (
     <section className="result-screen memory-result-screen">
@@ -45,7 +51,9 @@ export default function MemoryResult({ result, player, onAgain, onHome }) {
             </div>
             <div>
               <span>BEST SCORE</span>
-              <strong>{player.bestMemoryScore} / 5</strong>
+              <strong>
+                {player.bestMemoryScore} / {GAME_CONFIG.totalMemoryRounds}
+              </strong>
             </div>
           </div>
         </div>
@@ -67,15 +75,22 @@ export default function MemoryResult({ result, player, onAgain, onHome }) {
           <div className="memory-result-header">
             <div>
               <span className="section-kicker">ROUND BREAKDOWN</span>
-              <h2>Every sequence. <span>Accounted for.</span></h2>
+              <h2>
+                Every sequence. <span>Accounted for.</span>
+              </h2>
             </div>
-            <p>Five rounds, recorded in order.</p>
+            <p>
+              {roundHistory.length} / {GAME_CONFIG.totalMemoryRounds} rounds recorded
+            </p>
           </div>
 
           <div className="memory-history">
-            {result.roundHistory?.map((item) => (
+            {roundHistory.map((item) => (
               <article
-                className={'memory-history-row ' + (item.correct ? 'is-correct' : 'is-wrong')}
+                className={
+                  'memory-history-row ' +
+                  (item.correct ? 'is-correct' : 'is-wrong')
+                }
                 key={item.round}
               >
                 <div className="memory-history-index">
@@ -85,15 +100,23 @@ export default function MemoryResult({ result, player, onAgain, onHome }) {
 
                 <div className="memory-history-main">
                   <div className="memory-history-top">
-                    <strong>{item.correct ? 'Exact recall' : 'Sequence missed'}</strong>
-                    <span>{item.length} symbols · {item.difficulty}</span>
+                    <strong>
+                      {item.correct ? 'Exact recall' : 'Sequence missed'}
+                    </strong>
+                    <span>
+                      {item.length} symbols · {item.difficulty}
+                    </span>
                   </div>
 
                   <div className="memory-history-sequence">
                     <span>SEEN</span>
                     <div>
                       {item.sequence.map((symbol, index) => (
-                        <i key={'seen-' + item.round + '-' + index}>{symbol}</i>
+                        <i
+                          key={'seen-' + item.round + '-' + index}
+                        >
+                          {symbol}
+                        </i>
                       ))}
                     </div>
                   </div>
