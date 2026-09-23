@@ -51,9 +51,11 @@ const tests = [
 ];
 
 const levels = [
-  ['01', 'Warm Up', 'Learn the rules'],
-  ['05', 'Pressure', 'Faster decisions'],
-  ['10', 'Brain Breaker', 'Multiple rules at once'],
+  ['01–02', 'Warm Up', 'Learn the rules'],
+  ['03–04', 'Focused', 'Cleaner decisions'],
+  ['05–06', 'Pressure', 'Faster decisions'],
+  ['07–08', 'Brutal', 'Mistakes cost more'],
+  ['09–10', 'Insane', 'Push every skill'],
 ];
 
 function App() {
