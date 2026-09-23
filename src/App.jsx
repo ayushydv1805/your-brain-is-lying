@@ -265,7 +265,7 @@ function App() {
                 <div className="test-icon">{test.icon}</div>
                 <h3>{test.title}</h3>
                 <p>{test.text}</p>
-                <span className="card-arrow">{test.playable ? 'PLAY ↗' : 'SOON'}</span>
+                <span className="card-arrow">{test.playable ? (test.action === 'memory' ? 'PLAY MEMORY ↗' : 'PLAY ↗') : 'SOON'}</span>
               </article>
             ))}
           </div>
