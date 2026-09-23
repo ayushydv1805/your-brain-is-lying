@@ -16,10 +16,12 @@ const PHASES = {
   RESULT: 'result',
 };
 
-export default function MemoryTest({ level, onFinish, onExit }) {
+export default function MemoryTest({ level, difficultyProfile, onFinish, onExit }) {
+  const effectiveLevel = difficultyProfile?.effectiveLevel ?? level;
+  const tier = difficultyProfile?.tier;
   const [phase, setPhase] = useState(PHASES.READY);
   const [round, setRound] = useState(1);
-  const [question, setQuestion] = useState(() => createMemoryRound(level, 1));
+  const [question, setQuestion] = useState(() => createMemoryRound(effectiveLevel, 1));
   const [selected, setSelected] = useState([]);
   const [attempt, setAttempt] = useState([]);
   const [score, setScore] = useState(0);
@@ -47,7 +49,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
   const startRound = useCallback((roundNumber) => {
     clearTimer();
 
-    const nextQuestion = createMemoryRound(level, roundNumber);
+    const nextQuestion = createMemoryRound(effectiveLevel, roundNumber);
 
     setQuestion(nextQuestion);
     setSelected([]);
@@ -59,7 +61,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
       if (!mountedRef.current) return;
       setPhase(PHASES.RECALL);
     }, nextQuestion.displayTime);
-  }, [clearTimer, level]);
+  }, [clearTimer, effectiveLevel]);
 
   const startGame = () => {
     finishedRef.current = false;
@@ -114,6 +116,8 @@ export default function MemoryTest({ level, onFinish, onExit }) {
       accuracy,
       xp: getMemoryXp(finalScore, level),
       rating: getMemoryRating(accuracy, finalHistory.length),
+      difficulty: difficultyProfile,
+      effectiveLevel,
       roundHistory: finalHistory,
     });
   };
@@ -144,7 +148,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
     startRound(nextRound);
   };
 
-  const targetLength = getMemoryLength(level, round);
+  const targetLength = getMemoryLength(effectiveLevel, round);
   const visibleScore = score + (roundCorrect ? 1 : 0);
 
   return (
@@ -318,7 +322,7 @@ export default function MemoryTest({ level, onFinish, onExit }) {
 
         <div className="difficulty-note">
           <span>ADAPTIVE MEMORY</span>
-          <b>{question.difficulty}</b>
+          <b>{tier?.shortName ?? question.difficulty}</b>
           <small>
             {targetLength} symbols · {question.displayTime}ms · Level {level}
           </small>
