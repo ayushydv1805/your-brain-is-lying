@@ -24,22 +24,33 @@ A fast-paced cognitive challenge game built with React + Vite.
 - Fully playable five-round memory challenge
 - A new sequence is generated for every round
 - Sequence symbols are shuffled so fixed answers cannot be memorised
-- Exact-order recall: every click must match the next expected symbol
-- One incorrect symbol immediately ends the current round
+- Exact-order recall
+- Incorrect-order detection
 - Round difficulty scales through longer sequences and shorter viewing windows
-- Level difficulty also tightens the viewing window
-- Clear round progress: Round 1 / 5 through Round 5 / 5
-- Countdown bar shows the active memorisation window
-- Round score, sequence length, recalled count, and difficulty are visible during play
-- Detailed post-run breakdown showing the sequence seen and the sequence entered
-- Memory accuracy, rating, XP, and best score are persisted with the player profile
-- Memory XP contributes to the same level progression used by the reaction test
-- Responsive controls and accessible answer buttons
+- Countdown feedback
+- Detailed round-by-round memory report
+- Persistent best memory score
+- Memory XP contributes to the shared level system
 
-### Memory difficulty
-At Level 1, the five rounds progress from 4 to 8 symbols while the viewing window tightens from 1800ms toward 1000ms.
+### Phase 4 — Attention engine
+- Fully playable five-round visual-search challenge
+- A fresh target and fresh grid are generated every round
+- Exactly one target matches both characters
+- Distractors include near-matches to increase visual search difficulty
+- Grid grows as rounds and player levels progress
+- Search time limit becomes tighter with difficulty
+- Timeout handling and target reveal on missed rounds
+- Per-round search timing and correctness tracking
+- Dedicated attention result screen with round breakdown
+- Accuracy, average search time, best search time, rating, and XP
+- Persistent best attention score
+- Attention XP contributes to the shared player progression
 
-Higher player levels start with longer sequences and/or less viewing time, while the run always remains exactly five rounds.
+## Attention difficulty
+
+At lower levels the field starts smaller and gives more time to scan. As the player progresses, the grid can reach 7×7 while the search window tightens.
+
+Every run remains exactly five rounds, but the target code and all distractors are regenerated so previous answers do not help.
 
 ## Development
 
@@ -57,10 +68,8 @@ npm run preview
 
 ## Planned
 
-- Attention challenge
 - Logic challenge
 - Impulse-control challenge
-- More procedural question generators
 - Higher difficulty tiers
 - Brain report across all skills
 - Achievements and streaks
