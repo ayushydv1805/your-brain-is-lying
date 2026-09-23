@@ -46,6 +46,21 @@ A fast-paced cognitive challenge game built with React + Vite.
 - Persistent best attention score
 - Attention XP contributes to the shared player progression
 
+
+### Phase 5 — Adaptive difficulty
+- Shared five-tier difficulty system: Warm Up, Focused, Pressure, Brutal, Insane
+- Ten player levels mapped across the five tiers
+- Per-skill mastery tracking for Reaction, Memory, and Attention
+- Recent performance is blended into a persistent mastery score
+- Strong mastery can temporarily push a skill one challenge level harder
+- Low mastery can temporarily pull a skill one challenge level back
+- Each playable test now consumes the same adaptive difficulty profile
+- Results show the difficulty tier used for that run
+- Level-up celebration appears when XP crosses a new level
+- Level-up screen announces the new difficulty tier
+- Dashboard exposes current difficulty and per-skill mastery
+- Existing localStorage player data remains backward compatible
+
 ## Attention difficulty
 
 At lower levels the field starts smaller and gives more time to scan. As the player progresses, the grid can reach 7×7 while the search window tightens.
