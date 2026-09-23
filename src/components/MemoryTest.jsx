@@ -114,7 +114,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
       score: finalScore,
       rounds: GAME_CONFIG.totalMemoryRounds,
       accuracy,
-      xp: getMemoryXp(finalScore, level),
+      xp: getMemoryXp(finalScore, effectiveLevel),
       rating: getMemoryRating(accuracy, finalHistory.length),
       difficulty: difficultyProfile,
       effectiveLevel,
