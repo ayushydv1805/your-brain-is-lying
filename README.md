@@ -46,26 +46,32 @@ A fast-paced cognitive challenge game built with React + Vite.
 - Persistent best attention score
 - Attention XP contributes to the shared player progression
 
-
 ### Phase 5 — Adaptive difficulty
-- Shared five-tier difficulty system: Warm Up, Focused, Pressure, Brutal, Insane
-- Ten player levels mapped across the five tiers
-- Per-skill mastery tracking for Reaction, Memory, and Attention
-- Recent performance is blended into a persistent mastery score
-- Strong mastery can temporarily push a skill one challenge level harder
-- Low mastery can temporarily pull a skill one challenge level back
-- Each playable test now consumes the same adaptive difficulty profile
-- Results show the difficulty tier used for that run
+- Shared five-tier difficulty engine: Warm Up, Focused, Pressure, Brutal, Insane
+- Ten player levels mapped across the five difficulty tiers
+- Per-skill mastery for Reaction, Memory, and Attention
+- Mastery is blended from recent completed runs and persisted locally
+- Strong performance can temporarily push a skill one challenge level harder
+- Struggling performance can temporarily pull a skill one challenge level back
+- Reaction, Memory, and Attention all consume the same adaptive difficulty profile
+- Every result screen shows the difficulty tier used for that run
 - Level-up celebration appears when XP crosses a new level
-- Level-up screen announces the new difficulty tier
-- Dashboard exposes current difficulty and per-skill mastery
-- Existing localStorage player data remains backward compatible
+- Level-up screen announces the next difficulty tier
+- Dashboard shows current difficulty and each skill's mastery
+- Existing localStorage profiles remain backward compatible
 
-## Attention difficulty
+## Difficulty model
 
-At lower levels the field starts smaller and gives more time to scan. As the player progresses, the grid can reach 7×7 while the search window tightens.
+The game separates **player level** from **challenge level**.
 
-Every run remains exactly five rounds, but the target code and all distractors are regenerated so previous answers do not help.
+Your player level is controlled by shared XP. Each skill also has its own mastery score from 0–100.
+
+- High mastery (88+) can move that skill one challenge level higher.
+- Low mastery (25 or below) can move that skill one challenge level lower.
+- Otherwise, the test uses the current player level.
+- The adaptive shift is capped at one level and never leaves Levels 1–10.
+
+This keeps the experience personalised without permanently changing the player's account level.
 
 ## Development
 
@@ -85,10 +91,6 @@ npm run preview
 
 - Logic challenge
 - Impulse-control challenge
-- Higher difficulty tiers
 - Brain report across all skills
 - Achievements and streaks
 - Multiplayer / leaderboard backend
-
-
-Phase 4 deployment: Vercel build trigger refreshed for the latest attention engine.
