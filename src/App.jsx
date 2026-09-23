@@ -202,7 +202,7 @@ function App() {
                 <span className="option option-b">WATCH</span>
                 <span className="option option-c">REACT</span>
               </div>
-              <div className="preview-timer"><span>5 ROUNDS · 4–8 SYMBOLS</span><div><b /></div></div>
+              <div className="preview-timer"><span>5 ROUNDS · REACTION TIMING</span><div><b /></div></div>
               <span className="preview-hint">Click to play →</span>
             </button>
 
@@ -329,7 +329,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 3 · Memory Engine</span>
+        <span>Phase 3 · Memory Engine · Build 03</span>
       </footer>
     </div>
   );
