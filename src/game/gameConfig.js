@@ -1,6 +1,7 @@
 export const GAME_CONFIG = {
   totalReactionRounds: 5,
   totalMemoryRounds: 5,
+  totalAttentionRounds: 5,
   baseXp: 40,
   maxLevel: 10,
   xpPerLevel: 100,
@@ -16,6 +17,14 @@ export const GAME_CONFIG = {
     excellent: 100,
     good: 80,
     okay: 60,
+  },
+  attention: {
+    excellentAccuracy: 100,
+    goodAccuracy: 80,
+    okayAccuracy: 60,
+    excellentAverage: 1800,
+    goodAverage: 2600,
+    okayAverage: 3600,
   },
 };
 
@@ -37,23 +46,41 @@ export function getReactionDifficulty(level) {
   const shrink = (safeLevel - 1) * 0.08;
 
   return {
-    minDelay: Math.max(500, Math.round(GAME_CONFIG.reaction.minDelay * (1 - shrink))),
-    maxDelay: Math.max(900, Math.round(GAME_CONFIG.reaction.maxDelay * (1 - shrink))),
+    minDelay: Math.max(
+      500,
+      Math.round(GAME_CONFIG.reaction.minDelay * (1 - shrink)),
+    ),
+    maxDelay: Math.max(
+      900,
+      Math.round(GAME_CONFIG.reaction.maxDelay * (1 - shrink)),
+    ),
   };
 }
 
 export function getReactionRating(ms) {
-  if (ms <= GAME_CONFIG.reaction.excellent) return { label: 'Exceptional', tone: 'excellent' };
-  if (ms <= GAME_CONFIG.reaction.good) return { label: 'Sharp', tone: 'good' };
-  if (ms <= GAME_CONFIG.reaction.okay) return { label: 'Solid', tone: 'okay' };
+  if (ms <= GAME_CONFIG.reaction.excellent) {
+    return { label: 'Exceptional', tone: 'excellent' };
+  }
+
+  if (ms <= GAME_CONFIG.reaction.good) {
+    return { label: 'Sharp', tone: 'good' };
+  }
+
+  if (ms <= GAME_CONFIG.reaction.okay) {
+    return { label: 'Solid', tone: 'okay' };
+  }
+
   return { label: 'Warm up', tone: 'slow' };
 }
 
 export function getReactionXp(averageMs, validRounds) {
   const speedBonus = Math.max(0, Math.round((650 - averageMs) / 8));
+
   return Math.max(
     10,
-    GAME_CONFIG.baseXp + speedBonus + Math.max(0, validRounds - 3) * 5,
+    GAME_CONFIG.baseXp +
+      speedBonus +
+      Math.max(0, validRounds - 3) * 5,
   );
 }
 
@@ -88,4 +115,49 @@ export function getMemoryXp(score, level) {
   const levelBonus = Math.max(0, safeLevel - 1) * 3;
 
   return Math.max(15, 30 + safeScore * 10 + levelBonus);
+}
+
+export function getAttentionRating(accuracy, averageMs) {
+  if (
+    accuracy >= GAME_CONFIG.attention.excellentAccuracy &&
+    averageMs !== null &&
+    averageMs <= GAME_CONFIG.attention.excellentAverage
+  ) {
+    return { label: 'Laser focus', tone: 'excellent' };
+  }
+
+  if (
+    accuracy >= GAME_CONFIG.attention.goodAccuracy &&
+    averageMs !== null &&
+    averageMs <= GAME_CONFIG.attention.goodAverage
+  ) {
+    return { label: 'Locked in', tone: 'good' };
+  }
+
+  if (accuracy >= GAME_CONFIG.attention.okayAccuracy) {
+    return { label: 'Decent focus', tone: 'okay' };
+  }
+
+  return { label: 'Refocus', tone: 'slow' };
+}
+
+export function getAttentionXp(score, averageMs, level) {
+  const safeScore = Math.max(
+    0,
+    Math.min(GAME_CONFIG.totalAttentionRounds, Number(score) || 0),
+  );
+  const safeAverage =
+    Number.isFinite(averageMs) && averageMs > 0 ? averageMs : 5000;
+  const safeLevel = Math.max(
+    1,
+    Math.min(GAME_CONFIG.maxLevel, Number(level) || 1),
+  );
+
+  const speedBonus = Math.max(0, Math.round((4200 - safeAverage) / 120));
+  const levelBonus = Math.max(0, safeLevel - 1) * 3;
+
+  return Math.max(
+    15,
+    25 + safeScore * 14 + speedBonus + levelBonus,
+  );
 }
