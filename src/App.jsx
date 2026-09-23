@@ -541,7 +541,7 @@ function App() {
               <article className="level-card" key={number}>
                 <span className="level-number">{number}</span>
                 <div className="level-line">
-                  <span style={{ width: 35 + index * 28 + '%' }} />
+                  <span style={{ width: 22 + index * 18 + '%' }} />
                 </div>
                 <h3>{title}</h3>
                 <p>{text}</p>
