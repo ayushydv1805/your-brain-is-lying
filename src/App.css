@@ -2600,3 +2600,310 @@ footer {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* =========================================================
+   PHASE 5 — ADAPTIVE DIFFICULTY + LEVEL UP
+   ========================================================= */
+
+.difficulty-badge {
+  width: fit-content;
+  max-width: min(760px, calc(100% - 28px));
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin: 22px auto 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(119,116,255,.16);
+  border-radius: 12px;
+  background: rgba(119,116,255,.045);
+  text-align: left;
+}
+
+.difficulty-badge-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #7774ff;
+  box-shadow: 0 0 0 5px rgba(119,116,255,.07);
+}
+
+.difficulty-badge div {
+  display: grid;
+  gap: 3px;
+}
+
+.difficulty-badge small {
+  color: #5f667d;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .11em;
+}
+
+.difficulty-badge strong {
+  color: #bcb9ff;
+  font: 700 11px 'Space Grotesk', sans-serif;
+  letter-spacing: .06em;
+}
+
+.difficulty-badge em {
+  padding-left: 10px;
+  border-left: 1px solid rgba(255,255,255,.07);
+  color: #626981;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.difficulty-badge.compact {
+  margin-top: 12px;
+}
+
+.level-up-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.level-up-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3,5,13,.76);
+  backdrop-filter: blur(12px);
+}
+
+.level-up-card {
+  position: relative;
+  width: min(470px, 100%);
+  overflow: hidden;
+  padding: 34px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(119,116,255,.16), transparent 34%),
+    linear-gradient(145deg, rgba(25,30,53,.98), rgba(10,14,27,.99));
+  box-shadow: 0 40px 130px rgba(0,0,0,.58);
+  text-align: center;
+  animation: levelUpIn .38s cubic-bezier(.2,.85,.25,1) both;
+}
+
+.level-up-card::before,
+.level-up-card::after {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgba(119,116,255,.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.level-up-card::before {
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.level-up-card::after {
+  top: -140px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes levelUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.level-up-kicker {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #8d8aff;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+
+.level-up-kicker i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5be0ca;
+  box-shadow: 0 0 12px rgba(91,224,202,.4);
+}
+
+.level-up-burst {
+  position: relative;
+  z-index: 1;
+  width: 142px;
+  height: 142px;
+  display: grid;
+  place-content: center;
+  gap: 3px;
+  margin: 27px auto 20px;
+  border: 1px solid rgba(119,116,255,.26);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(119,116,255,.16), transparent 65%),
+    rgba(119,116,255,.04);
+  box-shadow:
+    0 0 70px rgba(119,116,255,.12),
+    inset 0 0 40px rgba(119,116,255,.06);
+}
+
+.level-up-burst::before {
+  content: '';
+  position: absolute;
+  inset: -11px;
+  border: 1px solid rgba(119,116,255,.09);
+  border-radius: inherit;
+  animation: levelRing 2.4s ease-in-out infinite;
+}
+
+@keyframes levelRing {
+  0%, 100% { transform: scale(.95); opacity: .45; }
+  50% { transform: scale(1.03); opacity: 1; }
+}
+
+.level-up-burst span {
+  color: #646b84;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.level-up-burst strong {
+  color: #f0f1fb;
+  font: 700 55px/1 'Space Grotesk', sans-serif;
+  letter-spacing: -.07em;
+}
+
+.level-up-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.level-up-copy h2 {
+  margin: 0;
+  color: #eef0fb;
+  font: 700 clamp(33px, 6vw, 46px)/.98 'Space Grotesk', sans-serif;
+  letter-spacing: -.055em;
+}
+
+.level-up-copy h2 span {
+  color: #7774ff;
+}
+
+.level-up-copy p {
+  max-width: 355px;
+  margin: 14px auto 0;
+  color: #777e98;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.level-up-tier {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  margin-top: 22px;
+  padding: 15px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 13px;
+  background: rgba(255,255,255,.02);
+}
+
+.level-up-tier span {
+  color: #555c72;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .13em;
+}
+
+.level-up-tier strong {
+  color: #bdbaff;
+  font: 700 15px/1 'Space Grotesk', sans-serif;
+  letter-spacing: .08em;
+}
+
+.level-up-tier small {
+  color: #616880;
+  font-size: 8px;
+}
+
+.level-up-button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.difficulty-floating-card strong {
+  font-size: 13px !important;
+  letter-spacing: .03em;
+}
+
+.levels-section .level-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.levels-section .level-card:nth-child(4) .level-line span {
+  background: linear-gradient(90deg, #8c60ff, #c04d7f);
+}
+
+.levels-section .level-card:nth-child(5) .level-line span {
+  background: linear-gradient(90deg, #c94d6e, #ff865f);
+}
+
+@media (max-width: 1050px) {
+  .levels-section .level-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .difficulty-badge {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .difficulty-badge em {
+    width: 100%;
+    padding: 7px 0 0 19px;
+    border-left: 0;
+    border-top: 1px solid rgba(255,255,255,.07);
+  }
+
+  .levels-section .level-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .level-up-card {
+    padding: 27px 20px 21px;
+    border-radius: 21px;
+  }
+
+  .level-up-burst {
+    width: 122px;
+    height: 122px;
+    margin-top: 23px;
+  }
+
+  .level-up-burst strong {
+    font-size: 47px;
+  }
+}
