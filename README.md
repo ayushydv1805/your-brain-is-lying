@@ -74,3 +74,6 @@ npm run preview
 - Brain report across all skills
 - Achievements and streaks
 - Multiplayer / leaderboard backend
+
+
+Phase 4 deployment: Vercel build trigger refreshed for the latest attention engine.
