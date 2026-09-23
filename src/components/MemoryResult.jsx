@@ -2,6 +2,7 @@ import {
   GAME_CONFIG,
   getLevelProgress,
 } from '../game/gameConfig';
+import DifficultyBadge from './DifficultyBadge';
 
 export default function MemoryResult({ result, player, onAgain, onHome }) {
   const progress = getLevelProgress(player.xp);
@@ -25,6 +26,8 @@ export default function MemoryResult({ result, player, onAgain, onHome }) {
           Every sequence was generated fresh. Your score came from exact-order
           recall, not from memorising a fixed quiz.
         </p>
+
+        <DifficultyBadge profile={result.difficulty} />
 
         <div className="result-main-card">
           <div className="result-primary">
