@@ -58,7 +58,10 @@ export function getReactionXp(averageMs, validRounds) {
 }
 
 export function getMemoryRating(accuracy, completedRounds) {
-  if (accuracy >= GAME_CONFIG.memory.excellent && completedRounds >= 5) {
+  if (
+    accuracy >= GAME_CONFIG.memory.excellent &&
+    completedRounds === GAME_CONFIG.totalMemoryRounds
+  ) {
     return { label: 'Perfect recall', tone: 'excellent' };
   }
 
@@ -74,6 +77,15 @@ export function getMemoryRating(accuracy, completedRounds) {
 }
 
 export function getMemoryXp(score, level) {
-  const levelBonus = Math.max(0, level - 1) * 3;
-  return Math.max(15, 30 + score * 10 + levelBonus);
+  const safeScore = Math.max(
+    0,
+    Math.min(GAME_CONFIG.totalMemoryRounds, Number(score) || 0),
+  );
+  const safeLevel = Math.max(
+    1,
+    Math.min(GAME_CONFIG.maxLevel, Number(level) || 1),
+  );
+  const levelBonus = Math.max(0, safeLevel - 1) * 3;
+
+  return Math.max(15, 30 + safeScore * 10 + levelBonus);
 }
