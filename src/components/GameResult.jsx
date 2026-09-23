@@ -1,4 +1,5 @@
 import { getLevelFromXp, getLevelProgress } from '../game/gameConfig';
+import DifficultyBadge from './DifficultyBadge';
 
 export default function GameResult({ result, player, onAgain, onHome }) {
   const level = getLevelFromXp(player.xp);
@@ -18,6 +19,8 @@ export default function GameResult({ result, player, onAgain, onHome }) {
         <p className="result-subtitle">
           Reaction is only the beginning. Your first baseline has been recorded.
         </p>
+
+        <DifficultyBadge profile={result.difficulty} />
 
         <div className="result-main-card">
           <div className="result-primary">
