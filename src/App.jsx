@@ -78,6 +78,20 @@ function App() {
   const startMemory = () => startTest('memory');
   const startAttention = () => startTest('attention');
 
+  const averageMastery = Math.round(
+    (
+      getSkillMastery(player, 'reaction') +
+      getSkillMastery(player, 'memory') +
+      getSkillMastery(player, 'attention')
+    ) / 3,
+  );
+
+  const overallDifficulty = getDifficultyProfile(
+    player.level,
+    averageMastery,
+    'overall',
+  );
+
   const finishReaction = (runResult) => {
     const current = loadPlayer();
     const nextXp = current.xp + runResult.xp;
@@ -423,10 +437,10 @@ function App() {
               </div>
             </div>
 
-            <div className="floating-card streak-card">
-              <span>👁️</span>
-              <strong>{player.bestAttentionScore}</strong>
-              <small>best attention</small>
+            <div className="floating-card streak-card difficulty-floating-card">
+              <span>◈</span>
+              <strong>{overallDifficulty.tier.shortName}</strong>
+              <small>adaptive difficulty</small>
             </div>
           </div>
         </section>
@@ -549,17 +563,17 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 4 · ATTENTION ENGINE
+                PHASE 5 · ADAPTIVE DIFFICULTY
               </span>
 
               <h2>
-                Your attention gets <span>no free pass.</span>
+                The game <span>learns your level.</span>
               </h2>
 
               <p>
-                Five fresh visual-search rounds. Find one exact two-character
-                target while near-matches fill the field. The grid grows and
-                your decision window shrinks as the challenge gets harder.
+                Difficulty now responds to both your player level and recent
+                performance. Strong runs can push a test one step harder;
+                struggling runs can ease it back so the challenge stays useful.
               </p>
 
               <div className="about-actions">
@@ -598,6 +612,22 @@ function App() {
               <div>
                 <strong>{player.bestAttentionScore}/5</strong>
                 <span>best attention</span>
+              </div>
+              <div>
+                <strong>{overallDifficulty.tier.shortName}</strong>
+                <span>current difficulty</span>
+              </div>
+              <div>
+                <strong>{getSkillMastery(player, 'reaction')}%</strong>
+                <span>reaction mastery</span>
+              </div>
+              <div>
+                <strong>{getSkillMastery(player, 'memory')}%</strong>
+                <span>memory mastery</span>
+              </div>
+              <div>
+                <strong>{getSkillMastery(player, 'attention')}%</strong>
+                <span>attention mastery</span>
               </div>
             </div>
           </div>
