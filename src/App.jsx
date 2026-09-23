@@ -6,8 +6,15 @@ import AttentionTest from './components/AttentionTest';
 import GameResult from './components/GameResult';
 import MemoryResult from './components/MemoryResult';
 import AttentionResult from './components/AttentionResult';
+import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
 import { loadPlayer, savePlayer } from './game/storage';
+import {
+  getDifficultyProfile,
+  getDifficultyTier,
+  getSkillMastery,
+  updateSkillMastery,
+} from './game/difficultyEngine';
 
 const tests = [
   {
@@ -54,6 +61,7 @@ function App() {
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [player, setPlayer] = useState(loadPlayer);
   const [result, setResult] = useState(null);
+  const [levelUp, setLevelUp] = useState(null);
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -72,7 +80,7 @@ function App() {
   const finishReaction = (runResult) => {
     const current = loadPlayer();
     const nextXp = current.xp + runResult.xp;
-    const nextPlayer = {
+    const nextPlayer = updateSkillMastery({
       ...current,
       xp: nextXp,
       level: getLevelFromXp(nextXp),
@@ -86,9 +94,16 @@ function App() {
         best: runResult.best,
         at: new Date().toISOString(),
       },
-    };
+    }, runResult);
 
     savePlayer(nextPlayer);
+    if (nextPlayer.level > current.level) {
+      setLevelUp({
+        level: nextPlayer.level,
+        previousLevel: current.level,
+        tier: getDifficultyTier(nextPlayer.level),
+      });
+    }
     setPlayer(nextPlayer);
     setResult(runResult);
     setView('reaction-result');
@@ -98,7 +113,7 @@ function App() {
   const finishMemory = (runResult) => {
     const current = loadPlayer();
     const nextXp = current.xp + runResult.xp;
-    const nextPlayer = {
+    const nextPlayer = updateSkillMastery({
       ...current,
       xp: nextXp,
       level: getLevelFromXp(nextXp),
@@ -109,9 +124,16 @@ function App() {
         accuracy: runResult.accuracy,
         at: new Date().toISOString(),
       },
-    };
+    }, runResult);
 
     savePlayer(nextPlayer);
+    if (nextPlayer.level > current.level) {
+      setLevelUp({
+        level: nextPlayer.level,
+        previousLevel: current.level,
+        tier: getDifficultyTier(nextPlayer.level),
+      });
+    }
     setPlayer(nextPlayer);
     setResult(runResult);
     setView('memory-result');
@@ -121,7 +143,7 @@ function App() {
   const finishAttention = (runResult) => {
     const current = loadPlayer();
     const nextXp = current.xp + runResult.xp;
-    const nextPlayer = {
+    const nextPlayer = updateSkillMastery({
       ...current,
       xp: nextXp,
       level: getLevelFromXp(nextXp),
@@ -136,9 +158,16 @@ function App() {
         average: runResult.average,
         at: new Date().toISOString(),
       },
-    };
+    }, runResult);
 
     savePlayer(nextPlayer);
+    if (nextPlayer.level > current.level) {
+      setLevelUp({
+        level: nextPlayer.level,
+        previousLevel: current.level,
+        tier: getDifficultyTier(nextPlayer.level),
+      });
+    }
     setPlayer(nextPlayer);
     setResult(runResult);
     setView('attention-result');
@@ -148,6 +177,7 @@ function App() {
   const goHome = () => {
     setView('home');
     setResult(null);
+    setLevelUp(null);
     setPlayer(loadPlayer());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -160,6 +190,7 @@ function App() {
         <div className="orb orb-two" aria-hidden="true" />
         <ReactionTest
           level={player.level}
+          difficultyProfile={getDifficultyProfile(player.level, getSkillMastery(player, 'reaction'), 'reaction')}
           onFinish={finishReaction}
           onExit={goHome}
         />
@@ -175,6 +206,7 @@ function App() {
         <div className="orb orb-two" aria-hidden="true" />
         <MemoryTest
           level={player.level}
+          difficultyProfile={getDifficultyProfile(player.level, getSkillMastery(player, 'memory'), 'memory')}
           onFinish={finishMemory}
           onExit={goHome}
         />
@@ -190,6 +222,7 @@ function App() {
         <div className="orb orb-two" aria-hidden="true" />
         <AttentionTest
           level={player.level}
+          difficultyProfile={getDifficultyProfile(player.level, getSkillMastery(player, 'attention'), 'attention')}
           onFinish={finishAttention}
           onExit={goHome}
         />
@@ -548,8 +581,17 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 4 · Attention Engine</span>
+        <span>Phase 5 · Adaptive Difficulty</span>
       </footer>
+
+      {levelUp && (
+        <LevelUpCelebration
+          level={levelUp.level}
+          previousLevel={levelUp.previousLevel}
+          tier={levelUp.tier}
+          onClose={() => setLevelUp(null)}
+        />
+      )}
     </div>
   );
 }
