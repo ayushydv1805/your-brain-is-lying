@@ -1809,3 +1809,307 @@ footer {
     font-size: 18px;
   }
 }
+
+
+/* =========================================================
+   PHASE 3 POLISH — MEMORY FEEDBACK + RESULT BREAKDOWN
+   ========================================================= */
+
+.memory-sequence.phase-memorize {
+  position: relative;
+  overflow: hidden;
+}
+
+.memory-sequence.phase-memorize > span {
+  animation: memoryReveal .24s ease both;
+}
+
+.memory-sequence.phase-memorize > span:nth-child(2) { animation-delay: .025s; }
+.memory-sequence.phase-memorize > span:nth-child(3) { animation-delay: .05s; }
+.memory-sequence.phase-memorize > span:nth-child(4) { animation-delay: .075s; }
+.memory-sequence.phase-memorize > span:nth-child(5) { animation-delay: .1s; }
+.memory-sequence.phase-memorize > span:nth-child(6) { animation-delay: .125s; }
+.memory-sequence.phase-memorize > span:nth-child(7) { animation-delay: .15s; }
+.memory-sequence.phase-memorize > span:nth-child(8) { animation-delay: .175s; }
+
+@keyframes memoryReveal {
+  from {
+    opacity: 0;
+    transform: translateY(7px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.memory-timebar {
+  height: 3px;
+  margin: -9px 0 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.055);
+}
+
+.memory-timebar i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7774ff, #55d5c0);
+  animation: memoryTimer var(--memory-duration) linear forwards;
+}
+
+@keyframes memoryTimer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.memory-result-preview {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.memory-result-preview strong {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #dfe2f4 !important;
+  font-size: 18px !important;
+  letter-spacing: .1em !important;
+}
+
+.memory-result-preview small {
+  color: #656c83;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.memory-options {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.memory-option {
+  min-width: 0;
+  aspect-ratio: 1 / .9;
+}
+
+.memory-option:focus-visible {
+  position: relative;
+  z-index: 2;
+}
+
+.memory-history {
+  display: grid;
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.memory-result-list {
+  width: min(760px, 100%);
+  margin: 28px auto 0;
+  text-align: left;
+}
+
+.memory-result-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.memory-result-header h2 {
+  margin: 7px 0 0;
+  color: #eceef9;
+  font: 700 clamp(24px, 4vw, 34px)/1 'Space Grotesk', sans-serif;
+  letter-spacing: -.04em;
+}
+
+.memory-result-header h2 span {
+  color: #7774ff;
+}
+
+.memory-result-header p {
+  margin: 0;
+  color: #626981;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.memory-history-row {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 15px;
+  background: rgba(255,255,255,.018);
+}
+
+.memory-history-row.is-correct {
+  border-color: rgba(85,213,192,.12);
+}
+
+.memory-history-row.is-wrong {
+  border-color: rgba(255,133,145,.1);
+}
+
+.memory-history-index {
+  display: grid;
+  align-content: space-between;
+  justify-items: center;
+  min-height: 90px;
+  padding: 4px 0;
+}
+
+.memory-history-index span {
+  color: #565d74;
+  font: 700 9px 'Space Grotesk', sans-serif;
+  letter-spacing: .13em;
+}
+
+.memory-history-index strong {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #61ddc7;
+  background: rgba(85,213,192,.08);
+  font-size: 14px;
+}
+
+.is-wrong .memory-history-index strong {
+  color: #ff929d;
+  background: rgba(255,132,145,.08);
+}
+
+.memory-history-main {
+  min-width: 0;
+}
+
+.memory-history-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.memory-history-top strong {
+  color: #d9dced;
+  font: 600 13px 'Space Grotesk', sans-serif;
+}
+
+.memory-history-top > span {
+  color: #5d647b;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.memory-history-sequence {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 9px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.memory-history-sequence > span {
+  color: #50576e;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.memory-history-sequence > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.memory-history-sequence i {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 7px;
+  color: #bfc4d6;
+  background: rgba(255,255,255,.025);
+  font-style: normal;
+  font-size: 13px;
+}
+
+.memory-history-sequence i.match {
+  border-color: rgba(85,213,192,.16);
+  color: #70dfcd;
+  background: rgba(85,213,192,.055);
+}
+
+.memory-history-sequence i.miss {
+  border-color: rgba(255,132,145,.14);
+  color: #ff9ca6;
+  background: rgba(255,132,145,.045);
+}
+
+.memory-history-sequence em {
+  color: #555c72;
+  font-size: 9px;
+  font-style: normal;
+}
+
+@media (max-width: 760px) {
+  .memory-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .memory-result-header {
+    display: grid;
+    gap: 7px;
+  }
+
+  .memory-history-row {
+    grid-template-columns: 42px 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .memory-history-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 430px) {
+  .memory-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .memory-history-sequence {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .memory-history-sequence > div {
+    gap: 4px;
+  }
+
+  .memory-history-sequence i {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+}
