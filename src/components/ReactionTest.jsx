@@ -18,7 +18,14 @@ function randomDelay(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export default function ReactionTest({ level, onFinish, onExit }) {
+export default function ReactionTest({
+  level,
+  difficultyProfile,
+  onFinish,
+  onExit,
+}) {
+  const effectiveLevel = difficultyProfile?.effectiveLevel ?? level;
+  const tier = difficultyProfile?.tier;
   const [phase, setPhase] = useState(PHASES.READY);
   const [round, setRound] = useState(1);
   const [times, setTimes] = useState([]);
@@ -29,7 +36,7 @@ export default function ReactionTest({ level, onFinish, onExit }) {
   const goAtRef = useRef(0);
   const mountedRef = useRef(true);
 
-  const difficulty = getReactionDifficulty(level);
+  const difficulty = getReactionDifficulty(effectiveLevel);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -68,6 +75,22 @@ export default function ReactionTest({ level, onFinish, onExit }) {
     beginRound();
   };
 
+  const buildRunResult = () => {
+    const average = Math.round(
+      times.reduce((sum, value) => sum + value, 0) / times.length,
+    );
+
+    return {
+      type: 'reaction',
+      average,
+      best: Math.min(...times),
+      times,
+      xp: getReactionXp(average, times.length),
+      rating: getReactionRating(average),
+      difficulty: difficultyProfile,
+    };
+  };
+
   const handlePadClick = () => {
     if (phase === PHASES.READY) {
       startGame();
@@ -83,7 +106,10 @@ export default function ReactionTest({ level, onFinish, onExit }) {
 
     if (phase !== PHASES.GO) return;
 
-    const reaction = Math.max(1, Math.round(performance.now() - goAtRef.current));
+    const reaction = Math.max(
+      1,
+      Math.round(performance.now() - goAtRef.current),
+    );
     const nextTimes = [...times, reaction];
 
     clearTimer();
@@ -91,19 +117,7 @@ export default function ReactionTest({ level, onFinish, onExit }) {
     setTimes(nextTimes);
 
     if (nextTimes.length >= GAME_CONFIG.totalReactionRounds) {
-      const average = Math.round(
-        nextTimes.reduce((sum, value) => sum + value, 0) / nextTimes.length,
-      );
-
       setPhase(PHASES.FINISHED);
-      onFinish({
-        type: 'reaction',
-        average,
-        best: Math.min(...nextTimes),
-        times: nextTimes,
-        xp: getReactionXp(average, nextTimes.length),
-        rating: getReactionRating(average),
-      });
       return;
     }
 
@@ -116,39 +130,52 @@ export default function ReactionTest({ level, onFinish, onExit }) {
   };
 
   const currentAverage = times.length
-    ? Math.round(times.reduce((sum, value) => sum + value, 0) / times.length)
+    ? Math.round(
+        times.reduce((sum, value) => sum + value, 0) / times.length,
+      )
     : null;
 
   return (
     <section className="game-screen">
       <div className="game-topbar">
-        <button className="game-back" onClick={onExit}>← Exit</button>
+        <button className="game-back" onClick={onExit}>
+          ← Exit
+        </button>
 
         <div className="game-progress">
-          <span>REACTION TEST</span>
+          <span>REACTION TEST · 5 ROUNDS</span>
           <div className="progress-dots">
-            {Array.from({ length: GAME_CONFIG.totalReactionRounds }, (_, index) => (
-              <i
-                key={index}
-                className={
-                  index < times.length
-                    ? 'done'
-                    : index === round - 1 && phase !== PHASES.FINISHED
-                      ? 'active'
-                      : ''
-                }
-              />
-            ))}
+            {Array.from(
+              { length: GAME_CONFIG.totalReactionRounds },
+              (_, index) => (
+                <i
+                  key={index}
+                  className={
+                    index < times.length
+                      ? 'done'
+                      : index === round - 1 && phase !== PHASES.FINISHED
+                        ? 'active'
+                        : ''
+                  }
+                />
+              ),
+            )}
           </div>
         </div>
 
-        <div className="game-level">LVL {String(level).padStart(2, '0')}</div>
+        <div className="game-level">
+          LVL {String(level).padStart(2, '0')}
+        </div>
       </div>
 
       <div className="game-content">
         <div className="game-heading">
           <span className="section-kicker">TEST 01 · REACTION</span>
-          <h1>Don&apos;t think.<br /><span>React.</span></h1>
+          <h1>
+            Don&apos;t think.
+            <br />
+            <span>React.</span>
+          </h1>
           <p>
             Wait for the signal. The moment it turns green, hit the pad.
             Your brain will try to predict it. Don&apos;t let it.
@@ -171,7 +198,7 @@ export default function ReactionTest({ level, onFinish, onExit }) {
             {phase === PHASES.READY && (
               <>
                 <strong>START</strong>
-                <small>5 rounds · level {level}</small>
+                <small>5 rounds · {tier?.shortName ?? 'adaptive'}</small>
               </>
             )}
 
@@ -216,35 +243,45 @@ export default function ReactionTest({ level, onFinish, onExit }) {
           <div className="arena-meta">
             <div>
               <span>ROUND</span>
-              <strong>{Math.min(round, GAME_CONFIG.totalReactionRounds)} / {GAME_CONFIG.totalReactionRounds}</strong>
+              <strong>
+                {Math.min(round, GAME_CONFIG.totalReactionRounds)} /{' '}
+                {GAME_CONFIG.totalReactionRounds}
+              </strong>
             </div>
             <div>
               <span>BEST THIS RUN</span>
-              <strong>{times.length ? Math.min(...times) + ' ms' : '—'}</strong>
+              <strong>
+                {times.length ? Math.min(...times) + ' ms' : '—'}
+              </strong>
             </div>
             <div>
-              <span>LEVEL</span>
-              <strong>{level}</strong>
+              <span>DIFFICULTY</span>
+              <strong>{tier?.shortName ?? 'ADAPTIVE'}</strong>
             </div>
           </div>
         </div>
 
-        <div className="game-instruction">
-          {phase === PHASES.READY && 'Your first click starts the test.'}
-          {phase === PHASES.WAITING && 'Stay still. The signal can appear at any moment.'}
+        <div className="game-instruction" aria-live="polite">
+          {phase === PHASES.READY &&
+            'Your first click starts the test.'}
+          {phase === PHASES.WAITING &&
+            'Stay still. The signal can appear at any moment.'}
           {phase === PHASES.GO && 'GO — hit it now.'}
-          {phase === PHASES.RESULT && (
-            falseStart
+          {phase === PHASES.RESULT &&
+            (falseStart
               ? 'You anticipated the signal. That is exactly what this test is designed to catch.'
-              : 'Good. Reset your focus for the next round.'
-          )}
-          {phase === PHASES.FINISHED && 'Run complete. Your result is ready.'}
+              : 'Good. Reset your focus for the next round.')}
+          {phase === PHASES.FINISHED &&
+            'Five rounds complete. Review your run before you leave.'}
         </div>
 
         <div className="difficulty-note">
           <span>ADAPTIVE TIMING</span>
-          <b>{difficulty.minDelay}–{difficulty.maxDelay} ms</b>
-          <small>Level {level} timing window</small>
+          <b>{tier?.shortName ?? 'ADAPTIVE'}</b>
+          <small>
+            Level {level} · challenge level {effectiveLevel} ·{' '}
+            {difficulty.minDelay}–{difficulty.maxDelay} ms
+          </small>
         </div>
 
         {phase === PHASES.RESULT && (
@@ -257,14 +294,7 @@ export default function ReactionTest({ level, onFinish, onExit }) {
         {phase === PHASES.FINISHED && (
           <button
             className="primary-button game-next"
-            onClick={() => onFinish({
-              type: 'reaction',
-              average: currentAverage,
-              best: Math.min(...times),
-              times,
-              xp: getReactionXp(currentAverage, times.length),
-              rating: getReactionRating(currentAverage),
-            })}
+            onClick={() => onFinish(buildRunResult())}
           >
             <span>See brain report</span>
             <span className="button-arrow">→</span>
