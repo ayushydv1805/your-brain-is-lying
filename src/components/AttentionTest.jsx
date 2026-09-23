@@ -12,10 +12,12 @@ const PHASES = {
   RESULT: 'result',
 };
 
-export default function AttentionTest({ level, onFinish, onExit }) {
+export default function AttentionTest({ level, difficultyProfile, onFinish, onExit }) {
+  const effectiveLevel = difficultyProfile?.effectiveLevel ?? level;
+  const tier = difficultyProfile?.tier;
   const [phase, setPhase] = useState(PHASES.READY);
   const [round, setRound] = useState(1);
-  const [question, setQuestion] = useState(() => createAttentionRound(level, 1));
+  const [question, setQuestion] = useState(() => createAttentionRound(effectiveLevel, 1));
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState(null);
   const [roundCorrect, setRoundCorrect] = useState(null);
@@ -45,7 +47,7 @@ export default function AttentionTest({ level, onFinish, onExit }) {
   const startRound = useCallback((roundNumber) => {
     clearTimer();
 
-    const nextQuestion = createAttentionRound(level, roundNumber);
+    const nextQuestion = createAttentionRound(effectiveLevel, roundNumber);
 
     setQuestion(nextQuestion);
     setSelected(null);
@@ -66,7 +68,7 @@ export default function AttentionTest({ level, onFinish, onExit }) {
       setLastTime(nextQuestion.timeLimit);
       setPhase(PHASES.RESULT);
     }, nextQuestion.timeLimit);
-  }, [clearTimer, level]);
+  }, [clearTimer, effectiveLevel]);
 
   const startGame = () => {
     finishedRef.current = false;
@@ -132,6 +134,8 @@ export default function AttentionTest({ level, onFinish, onExit }) {
       best: successfulTimes.length ? Math.min(...successfulTimes) : null,
       xp: getAttentionXp( finalScore, averageTime, level),
       rating: getAttentionRating(accuracy, averageTime),
+      difficulty: difficultyProfile,
+      effectiveLevel,
       roundHistory: finalHistory,
       completedRounds,
     });
@@ -298,9 +302,9 @@ export default function AttentionTest({ level, onFinish, onExit }) {
 
         <div className="difficulty-note">
           <span>ADAPTIVE ATTENTION</span>
-          <b>{question.difficulty}</b>
+          <b>{tier?.shortName ?? question.difficulty}</b>
           <small>
-            {question.gridSize}×{question.gridSize} · {question.timeLimit}ms · Level {level}
+            {question.gridSize}×{question.gridSize} · {question.timeLimit}ms · Level {level}{effectiveLevel !== level ? ' · adaptive shift' : ''}
           </small>
         </div>
 
