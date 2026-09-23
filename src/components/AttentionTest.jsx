@@ -132,7 +132,7 @@ export default function AttentionTest({ level, difficultyProfile, onFinish, onEx
       accuracy,
       average: averageTime,
       best: successfulTimes.length ? Math.min(...successfulTimes) : null,
-      xp: getAttentionXp( finalScore, averageTime, level),
+      xp: getAttentionXp(finalScore, averageTime, effectiveLevel),
       rating: getAttentionRating(accuracy, averageTime),
       difficulty: difficultyProfile,
       effectiveLevel,
