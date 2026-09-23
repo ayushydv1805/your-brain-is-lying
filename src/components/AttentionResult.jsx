@@ -2,6 +2,7 @@ import {
   GAME_CONFIG,
   getLevelProgress,
 } from '../game/gameConfig';
+import DifficultyBadge from './DifficultyBadge';
 
 export default function AttentionResult({ result, player, onAgain, onHome }) {
   const progress = getLevelProgress(player.xp);
@@ -29,6 +30,8 @@ export default function AttentionResult({ result, player, onAgain, onHome }) {
           You searched a fresh field every round. Accuracy came first; speed
           showed how efficiently you found the exact signal.
         </p>
+
+        <DifficultyBadge profile={result.difficulty} />
 
         <div className="result-main-card">
           <div className="result-primary">
