@@ -69,6 +69,7 @@ function App() {
 
   const startTest = (test) => {
     setResult(null);
+    setLevelUp(null);
     setView(test);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -242,6 +243,14 @@ function App() {
           onAgain={startReaction}
           onHome={goHome}
         />
+        {levelUp && (
+          <LevelUpCelebration
+            level={levelUp.level}
+            previousLevel={levelUp.previousLevel}
+            tier={levelUp.tier}
+            onClose={() => setLevelUp(null)}
+          />
+        )}
       </div>
     );
   }
@@ -258,6 +267,14 @@ function App() {
           onAgain={startMemory}
           onHome={goHome}
         />
+        {levelUp && (
+          <LevelUpCelebration
+            level={levelUp.level}
+            previousLevel={levelUp.previousLevel}
+            tier={levelUp.tier}
+            onClose={() => setLevelUp(null)}
+          />
+        )}
       </div>
     );
   }
@@ -274,6 +291,14 @@ function App() {
           onAgain={startAttention}
           onHome={goHome}
         />
+        {levelUp && (
+          <LevelUpCelebration
+            level={levelUp.level}
+            previousLevel={levelUp.previousLevel}
+            tier={levelUp.tier}
+            onClose={() => setLevelUp(null)}
+          />
+        )}
       </div>
     );
   }
