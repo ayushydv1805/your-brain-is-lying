@@ -12,10 +12,19 @@ const DEFAULT_PLAYER = {
   lastRun: null,
   lastMemoryRun: null,
   lastAttentionRun: null,
+  skillMastery: {
+    reaction: 0,
+    memory: 0,
+    attention: 0,
+  },
 };
 
 function safeNumber(value, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
+}
+
+function safeMastery(value) {
+  return Math.max(0, Math.min(100, safeNumber(value)));
 }
 
 export function loadPlayer() {
@@ -24,6 +33,7 @@ export function loadPlayer() {
     if (!raw) return { ...DEFAULT_PLAYER };
 
     const parsed = JSON.parse(raw);
+    const parsedMastery = parsed.skillMastery || {};
 
     return {
       ...DEFAULT_PLAYER,
@@ -39,6 +49,11 @@ export function loadPlayer() {
       totalRuns: safeNumber(parsed.totalRuns),
       totalMemoryRuns: safeNumber(parsed.totalMemoryRuns),
       totalAttentionRuns: safeNumber(parsed.totalAttentionRuns),
+      skillMastery: {
+        reaction: safeMastery(parsedMastery.reaction),
+        memory: safeMastery(parsedMastery.memory),
+        attention: safeMastery(parsedMastery.attention),
+      },
     };
   } catch {
     return { ...DEFAULT_PLAYER };
