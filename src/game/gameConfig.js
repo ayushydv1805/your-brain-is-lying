@@ -2,6 +2,7 @@ export const GAME_CONFIG = {
   totalReactionRounds: 5,
   totalMemoryRounds: 5,
   totalAttentionRounds: 5,
+  totalLogicRounds: 5,
   baseXp: 40,
   maxLevel: 10,
   xpPerLevel: 100,
@@ -17,6 +18,14 @@ export const GAME_CONFIG = {
     excellent: 100,
     good: 80,
     okay: 60,
+  },
+  logic: {
+    excellentAccuracy: 100,
+    goodAccuracy: 80,
+    okayAccuracy: 60,
+    excellentAverage: 3200,
+    goodAverage: 5000,
+    okayAverage: 7000,
   },
   attention: {
     excellentAccuracy: 100,
@@ -160,4 +169,28 @@ export function getAttentionXp(score, averageMs, level) {
     15,
     25 + safeScore * 14 + speedBonus + levelBonus,
   );
+}
+
+export function getLogicDifficulty(level, round = 1) {
+  const safeLevel = Math.max(1, Math.min(level, GAME_CONFIG.maxLevel));
+  const safeRound = Math.max(1, Math.min(round, GAME_CONFIG.totalLogicRounds));
+  const levelPressure = (safeLevel - 1) * 220;
+  const roundPressure = (safeRound - 1) * 260;
+  return { timeLimit: Math.max(3400, Math.round(8200 - levelPressure - roundPressure)) };
+}
+
+export function getLogicRating(accuracy, averageMs) {
+  if (accuracy >= GAME_CONFIG.logic.excellentAccuracy && averageMs !== null && averageMs <= GAME_CONFIG.logic.excellentAverage) return { label: 'Clear reasoning', tone: 'excellent' };
+  if (accuracy >= GAME_CONFIG.logic.goodAccuracy && averageMs !== null && averageMs <= GAME_CONFIG.logic.goodAverage) return { label: 'Strong logic', tone: 'good' };
+  if (accuracy >= GAME_CONFIG.logic.okayAccuracy) return { label: 'Decent reasoning', tone: 'okay' };
+  return { label: 'Slow the impulse', tone: 'slow' };
+}
+
+export function getLogicXp(score, averageMs, level) {
+  const safeScore = Math.max(0, Math.min(GAME_CONFIG.totalLogicRounds, Number(score) || 0));
+  const safeAverage = Number.isFinite(averageMs) && averageMs > 0 ? averageMs : 8200;
+  const safeLevel = Math.max(1, Math.min(GAME_CONFIG.maxLevel, Number(level) || 1));
+  const speedBonus = Math.max(0, Math.round((8200 - safeAverage) / 180));
+  const levelBonus = Math.max(0, safeLevel - 1) * 4;
+  return Math.max(15, 28 + safeScore * 15 + speedBonus + levelBonus);
 }

@@ -94,3 +94,13 @@ npm run preview
 - Brain report across all skills
 - Achievements and streaks
 - Multiplayer / leaderboard backend
+
+### Phase 6 — Logic engine
+- Fully playable five-round logic challenge
+- Fresh sequence, alternating-rule, equation, ordering, and deduction problems
+- Four-option answers with immediate correctness feedback
+- Per-round timer that tightens with player level and round number
+- Detailed logic result screen with answers and explanations
+- Logic score, accuracy, solve speed, XP, and persistent personal best
+- Logic mastery feeds the shared adaptive difficulty engine
+- Existing localStorage profiles remain backward compatible

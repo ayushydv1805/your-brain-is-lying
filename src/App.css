@@ -2907,3 +2907,71 @@ footer {
     font-size: 47px;
   }
 }
+
+
+
+/* =========================================================
+   PHASE 6 — LOGIC TEST
+   ========================================================= */
+.logic-game-screen .game-content { max-width: 900px; }
+.logic-arena { width: min(780px, 100%); margin: 24px auto 0; padding: 12px; border: 1px solid rgba(255,255,255,.08); border-radius: 24px; background: linear-gradient(145deg, rgba(23,28,49,.96), rgba(8,12,24,.98)); box-shadow: 0 35px 90px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.03); }
+.logic-timebar { height: 5px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.06); }
+.logic-timebar i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#7774ff,#55d5c0); transition:width .05s linear; }
+.logic-meta { display:flex; justify-content:space-between; align-items:center; padding:12px 4px 8px; color:#555c73; font-size:8px; font-weight:700; letter-spacing:.12em; }
+.logic-meta strong { color:#bfc3d7; font:700 15px/1 'Space Grotesk',sans-serif; }
+.logic-question-card { padding:28px; border:1px solid rgba(255,255,255,.07); border-radius:19px; background:rgba(255,255,255,.018); }
+.logic-type { color:#7774ff; font-size:8px; font-weight:700; letter-spacing:.14em; }
+.logic-question-card h2 { max-width:650px; margin:13px 0 0; color:#eef0fb; font:700 clamp(24px,4vw,38px)/1.06 'Space Grotesk',sans-serif; letter-spacing:-.045em; }
+.logic-sequence { margin-top:22px; padding:18px; overflow-x:auto; border:1px solid rgba(119,116,255,.12); border-radius:13px; color:#c9cce0; background:rgba(119,116,255,.035); font:700 clamp(16px,2.8vw,26px)/1.2 'Space Grotesk',sans-serif; text-align:center; white-space:nowrap; }
+.logic-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+.logic-option { min-height:62px; display:grid; grid-template-columns:34px 1fr; align-items:center; gap:10px; padding:10px 13px; border:1px solid rgba(255,255,255,.07); border-radius:13px; color:#c9cde0; background:rgba(255,255,255,.02); cursor:pointer; text-align:left; transition:transform .12s ease,border-color .12s ease,background .12s ease; }
+.logic-option > span { width:30px; height:30px; display:grid; place-items:center; border-radius:9px; color:#737a92; background:rgba(255,255,255,.035); font-size:10px; font-weight:800; }
+.logic-option strong { color:#d8dbea; font:600 13px/1.35 'Space Grotesk',sans-serif; }
+.logic-option:hover:not(:disabled) { transform:translateY(-2px); border-color:rgba(119,116,255,.45); background:rgba(119,116,255,.07); }
+.logic-option:disabled { cursor:default; }
+.logic-option.is-correct { border-color:rgba(85,213,192,.35); background:rgba(85,213,192,.065); }
+.logic-option.is-wrong { border-color:rgba(255,132,145,.3); background:rgba(255,132,145,.055); }
+.logic-feedback { display:grid; grid-template-columns:1fr auto; gap:8px 20px; margin-top:10px; padding:17px; border:1px solid rgba(255,255,255,.06); border-radius:13px; background:rgba(255,255,255,.018); }
+.logic-feedback > div { display:flex; align-items:center; gap:10px; }
+.logic-feedback strong { color:#dfe2ef; font:700 13px 'Space Grotesk',sans-serif; }
+.logic-feedback.is-correct strong { color:#73dfcf; }
+.logic-feedback.is-wrong strong { color:#ff9da7; }
+.logic-feedback > div span { color:#5f667e; font-size:9px; }
+.logic-feedback p { grid-column:1/-1; margin:0; color:#767e97; font-size:10px; line-height:1.6; }
+.logic-feedback .primary-button { grid-column:2; grid-row:1/span 2; align-self:center; }
+.logic-hint-row { display:flex; justify-content:center; gap:11px; margin-top:19px; color:#4f566c; font-size:8px; font-weight:700; letter-spacing:.12em; }
+.logic-hint-row i { width:3px; height:3px; align-self:center; border-radius:50%; background:#6a7087; }
+.logic-result-list { width:min(780px,100%); margin:28px auto 0; text-align:left; }
+.logic-result-header { display:flex; justify-content:space-between; gap:20px; align-items:end; margin-bottom:14px; }
+.logic-result-header h2 { margin:7px 0 0; color:#eceef9; font:700 clamp(24px,4vw,34px)/1 'Space Grotesk',sans-serif; letter-spacing:-.04em; }
+.logic-result-header h2 span { color:#7774ff; }
+.logic-result-header p { margin:0; color:#626981; font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.logic-history { display:grid; gap:10px; margin-top:17px; }
+.logic-history-row { display:grid; grid-template-columns:58px 1fr; gap:16px; padding:17px; border:1px solid rgba(255,255,255,.065); border-radius:15px; background:rgba(255,255,255,.018); }
+.logic-history-row.is-correct { border-color:rgba(85,213,192,.12); }
+.logic-history-row.is-wrong { border-color:rgba(255,132,145,.1); }
+.logic-history-index { display:grid; align-content:space-between; justify-items:center; min-height:120px; padding:4px 0; }
+.logic-history-index span { color:#565d74; font:700 9px 'Space Grotesk',sans-serif; letter-spacing:.13em; }
+.logic-history-index strong { width:31px; height:31px; display:grid; place-items:center; border-radius:10px; color:#61ddc7; background:rgba(85,213,192,.08); font-size:14px; }
+.logic-history-row.is-wrong .logic-history-index strong { color:#ff929d; background:rgba(255,132,145,.08); }
+.logic-history-main { min-width:0; }
+.logic-history-top { display:flex; justify-content:space-between; gap:12px; }
+.logic-history-top strong { color:#d9dced; font:600 13px 'Space Grotesk',sans-serif; }
+.logic-history-top span { color:#5d647b; font-size:8px; font-weight:700; letter-spacing:.09em; }
+.logic-history-main p { margin:10px 0 0; color:#777f98; font-size:10px; line-height:1.55; }
+.logic-history-sequence { margin-top:10px; padding:10px; overflow-x:auto; border:1px solid rgba(255,255,255,.05); border-radius:9px; color:#bbc0d2; background:rgba(255,255,255,.018); font:600 11px 'Space Grotesk',sans-serif; white-space:nowrap; }
+.logic-history-answer { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin-top:10px; }
+.logic-history-answer span { color:#50576e; font-size:7px; font-weight:700; letter-spacing:.1em; }
+.logic-history-answer strong { min-width:56px; padding:6px 8px; border:1px solid rgba(255,255,255,.06); border-radius:7px; color:#bfc4d6; background:rgba(255,255,255,.024); font:700 11px 'Space Grotesk',sans-serif; text-align:center; }
+.logic-history-answer strong.match { border-color:rgba(85,213,192,.16); color:#70dfcd; background:rgba(85,213,192,.05); }
+.logic-history-answer strong.miss { border-color:rgba(255,132,145,.14); color:#ff9ca6; background:rgba(255,132,145,.045); }
+.logic-history-main small { display:block; margin-top:9px; color:#555d73; font-size:8px; line-height:1.55; }
+@media (max-width:760px) {
+  .logic-question-card { padding:20px; }
+  .logic-options { grid-template-columns:1fr; }
+  .logic-feedback { grid-template-columns:1fr; }
+  .logic-feedback .primary-button { grid-column:1; grid-row:auto; }
+  .logic-result-header { display:grid; gap:7px; }
+  .logic-history-row { grid-template-columns:42px 1fr; gap:12px; padding:14px; }
+  .logic-history-index { min-height:110px; }
+}

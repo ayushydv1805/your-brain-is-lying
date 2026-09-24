@@ -6,6 +6,8 @@ import AttentionTest from './components/AttentionTest';
 import GameResult from './components/GameResult';
 import MemoryResult from './components/MemoryResult';
 import AttentionResult from './components/AttentionResult';
+import LogicTest from './components/LogicTest';
+import LogicResult from './components/LogicResult';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
 import { loadPlayer, savePlayer } from './game/storage';
@@ -41,7 +43,9 @@ const tests = [
   {
     icon: '🧩',
     title: 'Logic',
-    text: 'Solve patterns and traps before your first instinct takes over.',
+    text: 'Solve changing patterns and deductions before the clock closes.',
+    playable: true,
+    action: 'logic',
   },
   {
     icon: '🎯',
@@ -79,13 +83,15 @@ function App() {
   const startReaction = () => startTest('reaction');
   const startMemory = () => startTest('memory');
   const startAttention = () => startTest('attention');
+  const startLogic = () => startTest('logic');
 
   const averageMastery = Math.round(
     (
       getSkillMastery(player, 'reaction') +
       getSkillMastery(player, 'memory') +
-      getSkillMastery(player, 'attention')
-    ) / 3,
+      getSkillMastery(player, 'attention') +
+      getSkillMastery(player, 'logic')
+    ) / 4,
   );
 
   const overallDifficulty = getDifficultyProfile(
@@ -154,6 +160,25 @@ function App() {
     setPlayer(nextPlayer);
     setResult(runResult);
     setView('memory-result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const finishLogic = (runResult) => {
+    const current = loadPlayer();
+    const nextXp = current.xp + runResult.xp;
+    const nextPlayer = updateSkillMastery({
+      ...current,
+      xp: nextXp,
+      level: getLevelFromXp(nextXp),
+      bestLogicScore: Math.max(current.bestLogicScore, runResult.score),
+      totalLogicRuns: current.totalLogicRuns + 1,
+      lastLogicRun: { score: runResult.score, accuracy: runResult.accuracy, average: runResult.average, at: new Date().toISOString() },
+    }, runResult);
+    savePlayer(nextPlayer);
+    if (nextPlayer.level > current.level) setLevelUp({ level: nextPlayer.level, previousLevel: current.level, tier: getDifficultyTier(nextPlayer.level) });
+    setPlayer(nextPlayer);
+    setResult(runResult);
+    setView('logic-result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -231,6 +256,17 @@ function App() {
     );
   }
 
+  if (view === 'logic') {
+    return (
+      <div className="app-shell game-shell">
+        <div className="noise" aria-hidden="true" />
+        <div className="orb orb-one" aria-hidden="true" />
+        <div className="orb orb-two" aria-hidden="true" />
+        <LogicTest level={player.level} difficultyProfile={getDifficultyProfile(player.level, getSkillMastery(player, 'logic'), 'logic')} onFinish={finishLogic} onExit={goHome} />
+      </div>
+    );
+  }
+
   if (view === 'attention') {
     return (
       <div className="app-shell game-shell">
@@ -291,6 +327,18 @@ function App() {
             onClose={() => setLevelUp(null)}
           />
         )}
+      </div>
+    );
+  }
+
+  if (view === 'logic-result' && result) {
+    return (
+      <div className="app-shell result-shell-page">
+        <div className="noise" aria-hidden="true" />
+        <div className="orb orb-one" aria-hidden="true" />
+        <div className="orb orb-two" aria-hidden="true" />
+        <LogicResult result={result} player={player} onAgain={startLogic} onHome={goHome} />
+        {levelUp && <LevelUpCelebration level={levelUp.level} previousLevel={levelUp.previousLevel} tier={levelUp.tier} onClose={() => setLevelUp(null)} />}
       </div>
     );
   }
@@ -459,6 +507,8 @@ function App() {
               <span><b>02</b> Reaction engine ✓</span>
               <span><b>03</b> Memory engine ✓</span>
               <span><b>04</b> Attention engine ✓</span>
+              <span><b>05</b> Adaptive difficulty ✓</span>
+              <span><b>06</b> Logic engine ✓</span>
             </div>
           </section>
         )}
@@ -565,22 +615,22 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 5 · ADAPTIVE DIFFICULTY
+                PHASE 6 · LOGIC ENGINE
               </span>
 
               <h2>
-                The game <span>learns your level.</span>
+                Think twice. <span>Then commit.</span>
               </h2>
 
               <p>
-                Difficulty now responds to both your player level and recent
-                performance. Strong runs can push a test one step harder;
-                struggling runs can ease it back so the challenge stays useful.
+                Logic now joins the live test suite with fresh sequences, deductions,
+                changing rules, a tighter timer, and its own mastery score inside the
+                shared adaptive system.
               </p>
 
               <div className="about-actions">
-                <button className="primary-button" onClick={startAttention}>
-                  <span>Test my attention</span>
+                <button className="primary-button" onClick={startLogic}>
+                  <span>Test my logic</span>
                   <span className="button-arrow">→</span>
                 </button>
 
@@ -616,6 +666,10 @@ function App() {
                 <span>best attention</span>
               </div>
               <div>
+                <strong>{player.bestLogicScore}/5</strong>
+                <span>best logic</span>
+              </div>
+              <div>
                 <strong>{overallDifficulty.tier.shortName}</strong>
                 <span>current difficulty</span>
               </div>
@@ -631,6 +685,10 @@ function App() {
                 <strong>{getSkillMastery(player, 'attention')}%</strong>
                 <span>attention mastery</span>
               </div>
+              <div>
+                <strong>{getSkillMastery(player, 'logic')}%</strong>
+                <span>logic mastery</span>
+              </div>
             </div>
           </div>
         </section>
@@ -638,7 +696,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 5 · Adaptive Difficulty</span>
+        <span>Phase 6 · Logic Engine</span>
       </footer>
 
       {levelUp && (

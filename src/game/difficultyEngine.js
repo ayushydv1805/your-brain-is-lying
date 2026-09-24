@@ -39,7 +39,7 @@ export const DIFFICULTY_TIERS = [
   },
 ];
 
-const SKILLS = ['reaction', 'memory', 'attention'];
+const SKILLS = ['reaction', 'memory', 'attention', 'logic'];
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -131,6 +131,14 @@ export function getMasteryFromResult(result) {
     );
   }
 
+  if (result.type === 'logic') {
+    const accuracy = clamp(Number(result.accuracy) || 0, 0, 100);
+    const average = Number(result.average);
+    if (!Number.isFinite(average) || average <= 0) return Math.round(accuracy);
+    const speedScore = 100 - ((average - 2800) / (8200 - 2800)) * 100;
+    return Math.round(clamp(accuracy * 0.7 + clamp(speedScore, 0, 100) * 0.3, 0, 100));
+  }
+
   if (result.type === 'attention') {
     const accuracy = clamp(Number(result.accuracy) || 0, 0, 100);
     const average = Number(result.average);
@@ -172,5 +180,6 @@ export function getAllSkillMastery(player) {
     reaction: getSkillMastery(player, 'reaction'),
     memory: getSkillMastery(player, 'memory'),
     attention: getSkillMastery(player, 'attention'),
+    logic: getSkillMastery(player, 'logic'),
   };
 }
