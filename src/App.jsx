@@ -8,6 +8,8 @@ import MemoryResult from './components/MemoryResult';
 import AttentionResult from './components/AttentionResult';
 import LogicTest from './components/LogicTest';
 import LogicResult from './components/LogicResult';
+import ImpulseTest from './components/ImpulseTest';
+import ImpulseResult from './components/ImpulseResult';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
 import { loadPlayer, savePlayer } from './game/storage';
@@ -51,6 +53,8 @@ const tests = [
     icon: '🎯',
     title: 'Impulse',
     text: 'Know when to act — and, more importantly, when not to.',
+    playable: true,
+    action: 'impulse',
   },
 ];
 
@@ -84,14 +88,16 @@ function App() {
   const startMemory = () => startTest('memory');
   const startAttention = () => startTest('attention');
   const startLogic = () => startTest('logic');
+  const startImpulse = () => startTest('impulse');
 
   const averageMastery = Math.round(
     (
       getSkillMastery(player, 'reaction') +
       getSkillMastery(player, 'memory') +
       getSkillMastery(player, 'attention') +
-      getSkillMastery(player, 'logic')
-    ) / 4,
+      getSkillMastery(player, 'logic') +
+      getSkillMastery(player, 'impulse')
+    ) / 5,
   );
 
   const overallDifficulty = getDifficultyProfile(
@@ -182,6 +188,40 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const finishImpulse = (runResult) => {
+    const current = loadPlayer();
+    const nextXp = current.xp + runResult.xp;
+    const nextPlayer = updateSkillMastery({
+      ...current,
+      xp: nextXp,
+      level: getLevelFromXp(nextXp),
+      bestImpulseAccuracy: Math.max(
+        current.bestImpulseAccuracy,
+        runResult.accuracy,
+      ),
+      totalImpulseRuns: current.totalImpulseRuns + 1,
+      lastImpulseRun: {
+        accuracy: runResult.accuracy,
+        falseAlarmRate: runResult.falseAlarmRate,
+        average: runResult.average,
+        at: new Date().toISOString(),
+      },
+    }, runResult);
+
+    savePlayer(nextPlayer);
+    if (nextPlayer.level > current.level) {
+      setLevelUp({
+        level: nextPlayer.level,
+        previousLevel: current.level,
+        tier: getDifficultyTier(nextPlayer.level),
+      });
+    }
+    setPlayer(nextPlayer);
+    setResult(runResult);
+    setView('impulse-result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const finishAttention = (runResult) => {
     const current = loadPlayer();
     const nextXp = current.xp + runResult.xp;
@@ -267,6 +307,26 @@ function App() {
     );
   }
 
+  if (view === 'impulse') {
+    return (
+      <div className="app-shell game-shell">
+        <div className="noise" aria-hidden="true" />
+        <div className="orb orb-one" aria-hidden="true" />
+        <div className="orb orb-two" aria-hidden="true" />
+        <ImpulseTest
+          level={player.level}
+          difficultyProfile={getDifficultyProfile(
+            player.level,
+            getSkillMastery(player, 'impulse'),
+            'impulse',
+          )}
+          onFinish={finishImpulse}
+          onExit={goHome}
+        />
+      </div>
+    );
+  }
+
   if (view === 'attention') {
     return (
       <div className="app-shell game-shell">
@@ -339,6 +399,30 @@ function App() {
         <div className="orb orb-two" aria-hidden="true" />
         <LogicResult result={result} player={player} onAgain={startLogic} onHome={goHome} />
         {levelUp && <LevelUpCelebration level={levelUp.level} previousLevel={levelUp.previousLevel} tier={levelUp.tier} onClose={() => setLevelUp(null)} />}
+      </div>
+    );
+  }
+
+  if (view === 'impulse-result' && result) {
+    return (
+      <div className="app-shell result-shell-page">
+        <div className="noise" aria-hidden="true" />
+        <div className="orb orb-one" aria-hidden="true" />
+        <div className="orb orb-two" aria-hidden="true" />
+        <ImpulseResult
+          result={result}
+          player={player}
+          onAgain={startImpulse}
+          onHome={goHome}
+        />
+        {levelUp && (
+          <LevelUpCelebration
+            level={levelUp.level}
+            previousLevel={levelUp.previousLevel}
+            tier={levelUp.tier}
+            onClose={() => setLevelUp(null)}
+          />
+        )}
       </div>
     );
   }
@@ -462,7 +546,7 @@ function App() {
               </div>
 
               <div className="preview-timer">
-                <span>3 LIVE TESTS</span>
+                <span>5 LIVE TESTS</span>
                 <div><b /></div>
               </div>
 
@@ -509,6 +593,7 @@ function App() {
               <span><b>04</b> Attention engine ✓</span>
               <span><b>05</b> Adaptive difficulty ✓</span>
               <span><b>06</b> Logic engine ✓</span>
+              <span><b>07</b> Impulse control ✓</span>
             </div>
           </section>
         )}
@@ -615,17 +700,17 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 6 · LOGIC ENGINE
+                PHASE 7 · IMPULSE CONTROL
               </span>
 
               <h2>
-                Think twice. <span>Then commit.</span>
+                Control the click. <span>Then commit.</span>
               </h2>
 
               <p>
-                Logic now joins the live test suite with fresh sequences, deductions,
-                changing rules, a tighter timer, and its own mastery score inside the
-                shared adaptive system.
+                Impulse control now joins the live test suite with fresh go/no-go signals,
+                false-alarm tracking, response timing, and its own mastery score inside
+                the shared adaptive system.
               </p>
 
               <div className="about-actions">
@@ -670,6 +755,10 @@ function App() {
                 <span>best logic</span>
               </div>
               <div>
+                <strong>{player.bestImpulseAccuracy}%</strong>
+                <span>best impulse accuracy</span>
+              </div>
+              <div>
                 <strong>{overallDifficulty.tier.shortName}</strong>
                 <span>current difficulty</span>
               </div>
@@ -689,6 +778,10 @@ function App() {
                 <strong>{getSkillMastery(player, 'logic')}%</strong>
                 <span>logic mastery</span>
               </div>
+              <div>
+                <strong>{getSkillMastery(player, 'impulse')}%</strong>
+                <span>impulse mastery</span>
+              </div>
             </div>
           </div>
         </section>
@@ -696,19 +789,5 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 6 · Logic Engine</span>
+        <span>Phase 7 · Impulse Control</span>
       </footer>
-
-      {levelUp && (
-        <LevelUpCelebration
-          level={levelUp.level}
-          previousLevel={levelUp.previousLevel}
-          tier={levelUp.tier}
-          onClose={() => setLevelUp(null)}
-        />
-      )}
-    </div>
-  );
-}
-
-export default App;

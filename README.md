@@ -89,8 +89,6 @@ npm run preview
 
 ## Planned
 
-- Logic challenge
-- Impulse-control challenge
 - Brain report across all skills
 - Achievements and streaks
 - Multiplayer / leaderboard backend
@@ -103,4 +101,14 @@ npm run preview
 - Detailed logic result screen with answers and explanations
 - Logic score, accuracy, solve speed, XP, and persistent personal best
 - Logic mastery feeds the shared adaptive difficulty engine
+- Existing localStorage profiles remain backward compatible
+
+### Phase 7 — Impulse control
+- Fully playable five-round response-inhibition challenge
+- Fresh target symbols and changing go/no-go signals each run
+- Correct hits, missed go signals, correct restraint, and false alarms tracked separately
+- Signal speed tightens with player level and round progression
+- Dedicated impulse result report with control accuracy and response metrics
+- Impulse XP, best accuracy, run history, and persistent mastery
+- Impulse mastery feeds the shared adaptive difficulty engine
 - Existing localStorage profiles remain backward compatible
