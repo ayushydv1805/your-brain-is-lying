@@ -39,7 +39,7 @@ export const DIFFICULTY_TIERS = [
   },
 ];
 
-const SKILLS = ['reaction', 'memory', 'attention', 'logic'];
+const SKILLS = ['reaction', 'memory', 'attention', 'logic', 'impulse'];
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -139,6 +139,23 @@ export function getMasteryFromResult(result) {
     return Math.round(clamp(accuracy * 0.7 + clamp(speedScore, 0, 100) * 0.3, 0, 100));
   }
 
+  if (result.type === 'impulse') {
+    const accuracy = clamp(Number(result.accuracy) || 0, 0, 100);
+    const falseAlarmRate = clamp(Number(result.falseAlarmRate) || 0, 0, 100);
+    const average = Number(result.average);
+    const inhibition = 100 - falseAlarmRate;
+    const speedScore = Number.isFinite(average) && average > 0
+      ? clamp(100 - ((average - 400) / (1300 - 400)) * 100, 0, 100)
+      : 0;
+    return Math.round(
+      clamp(
+        accuracy * 0.7 + inhibition * 0.2 + speedScore * 0.1,
+        0,
+        100,
+      ),
+    );
+  }
+
   if (result.type === 'attention') {
     const accuracy = clamp(Number(result.accuracy) || 0, 0, 100);
     const average = Number(result.average);
@@ -181,5 +198,6 @@ export function getAllSkillMastery(player) {
     memory: getSkillMastery(player, 'memory'),
     attention: getSkillMastery(player, 'attention'),
     logic: getSkillMastery(player, 'logic'),
+    impulse: getSkillMastery(player, 'impulse'),
   };
 }

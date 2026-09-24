@@ -3,6 +3,7 @@ export const GAME_CONFIG = {
   totalMemoryRounds: 5,
   totalAttentionRounds: 5,
   totalLogicRounds: 5,
+  totalImpulseRounds: 5,
   baseXp: 40,
   maxLevel: 10,
   xpPerLevel: 100,
@@ -35,6 +36,15 @@ export const GAME_CONFIG = {
     excellentAverage: 1800,
     goodAverage: 2600,
     okayAverage: 3600,
+  },
+  impulse: {
+    excellentAccuracy: 95,
+    goodAccuracy: 80,
+    okayAccuracy: 65,
+    excellentFalseAlarmRate: 5,
+    goodFalseAlarmRate: 12,
+    excellentAverage: 520,
+    goodAverage: 800,
   },
 };
 
@@ -190,4 +200,64 @@ export function getLogicXp(score, averageMs, level) {
   const speedBonus = Math.max(0, Math.round((8200 - safeAverage) / 180));
   const levelBonus = Math.max(0, safeLevel - 1) * 4;
   return Math.max(15, 28 + safeScore * 15 + speedBonus + levelBonus);
+}
+
+export function getImpulseDifficulty(level, round = 1) {
+  const safeLevel = Math.max(1, Math.min(level, GAME_CONFIG.maxLevel));
+  const safeRound = Math.max(1, Math.min(round, GAME_CONFIG.totalImpulseRounds));
+  const levelPressure = (safeLevel - 1) * 48;
+  const roundPressure = (safeRound - 1) * 28;
+  return {
+    trialCount: Math.min(
+      14,
+      9 + Math.floor((safeLevel - 1) / 2) + Math.floor((safeRound - 1) / 2),
+    ),
+    interval: Math.max(620, 1180 - levelPressure - roundPressure),
+  };
+}
+
+export function getImpulseRating(accuracy, falseAlarmRate, averageMs) {
+  if (
+    accuracy >= GAME_CONFIG.impulse.excellentAccuracy &&
+    falseAlarmRate <= GAME_CONFIG.impulse.excellentFalseAlarmRate &&
+    averageMs !== null &&
+    averageMs <= GAME_CONFIG.impulse.excellentAverage
+  ) {
+    return { label: 'Controlled', tone: 'excellent' };
+  }
+
+  if (
+    accuracy >= GAME_CONFIG.impulse.goodAccuracy &&
+    falseAlarmRate <= GAME_CONFIG.impulse.goodFalseAlarmRate &&
+    averageMs !== null &&
+    averageMs <= GAME_CONFIG.impulse.goodAverage
+  ) {
+    return { label: 'Steady', tone: 'good' };
+  }
+
+  if (accuracy >= GAME_CONFIG.impulse.okayAccuracy) {
+    return { label: 'Watch the impulse', tone: 'okay' };
+  }
+
+  return { label: 'Rebuild control', tone: 'slow' };
+}
+
+export function getImpulseXp(correctDecisions, totalTrials, accuracy, averageMs, level) {
+  const safeCorrect = Math.max(0, Number(correctDecisions) || 0);
+  const safeAccuracy = Math.max(0, Math.min(100, Number(accuracy) || 0));
+  const safeAverage =
+    Number.isFinite(averageMs) && averageMs > 0 ? averageMs : 1500;
+  const safeLevel = Math.max(1, Math.min(GAME_CONFIG.maxLevel, Number(level) || 1));
+  const speedBonus = Math.max(0, Math.round((1200 - safeAverage) / 40));
+  const accuracyBonus = Math.round((safeAccuracy / 100) * 15);
+  const trialBonus = Math.min(12, Math.max(0, Number(totalTrials) || 0) - 40);
+  return Math.max(
+    15,
+    20 +
+      safeCorrect * 2 +
+      accuracyBonus +
+      speedBonus +
+      trialBonus +
+      Math.max(0, safeLevel - 1) * 3,
+  );
 }
