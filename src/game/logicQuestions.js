@@ -122,6 +122,7 @@ export function createLogicRound(level, round) {
     round,
     level: safeLevel,
     difficulty: safeLevel >= 9 ? 'INSANE' : safeLevel >= 7 ? 'BRUTAL' : safeLevel >= 5 ? 'PRESSURE' : safeLevel >= 3 ? 'FOCUSED' : 'WARM UP',
+    correct: String(generated.correct),
     options: generated.options.map(String),
   };
 }
