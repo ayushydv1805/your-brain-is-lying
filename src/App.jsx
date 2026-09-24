@@ -791,7 +791,6 @@ function App() {
         <span>YOUR BRAIN IS LYING © 2026</span>
         <span>Phase 7 · Impulse Control</span>
       </footer>
-      </div>
     </div>
   );
 }
