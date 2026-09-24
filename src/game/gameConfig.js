@@ -20,6 +20,7 @@ export const GAME_CONFIG = {
     okay: 60,
   },
   logic: {
+    timeLimit: 60000,
     excellentAccuracy: 100,
     goodAccuracy: 80,
     okayAccuracy: 60,
@@ -171,12 +172,8 @@ export function getAttentionXp(score, averageMs, level) {
   );
 }
 
-export function getLogicDifficulty(level, round = 1) {
-  const safeLevel = Math.max(1, Math.min(level, GAME_CONFIG.maxLevel));
-  const safeRound = Math.max(1, Math.min(round, GAME_CONFIG.totalLogicRounds));
-  const levelPressure = (safeLevel - 1) * 220;
-  const roundPressure = (safeRound - 1) * 260;
-  return { timeLimit: Math.max(3400, Math.round(8200 - levelPressure - roundPressure)) };
+export function getLogicDifficulty() {
+  return { timeLimit: GAME_CONFIG.logic.timeLimit };
 }
 
 export function getLogicRating(accuracy, averageMs) {

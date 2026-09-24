@@ -19,6 +19,7 @@ const DEFAULT_PLAYER = {
     reaction: 0,
     memory: 0,
     attention: 0,
+    logic: 0,
   },
 };
 
@@ -58,6 +59,7 @@ export function loadPlayer() {
         reaction: safeMastery(parsedMastery.reaction),
         memory: safeMastery(parsedMastery.memory),
         attention: safeMastery(parsedMastery.attention),
+        logic: safeMastery(parsedMastery.logic),
       },
     };
   } catch {

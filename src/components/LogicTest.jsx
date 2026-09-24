@@ -85,7 +85,7 @@ export default function LogicTest({ level, difficultyProfile, onFinish, onExit }
       <div className="game-content">
         <div className="game-kicker"><span className="pulse-dot" />LOGIC TEST</div>
         <h1>Beat the pattern.<br /><span>Ignore the impulse.</span></h1>
-        <p className="game-subtitle">Five fresh logic problems. Pick the answer before the timer closes.</p>
+        <p className="game-subtitle">Five fresh logic problems. You have 60 seconds each round — accuracy first, then speed.</p>
         <DifficultyBadge profile={difficultyProfile} />
 
         <div className="logic-arena">

@@ -40,6 +40,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       clearTimer();

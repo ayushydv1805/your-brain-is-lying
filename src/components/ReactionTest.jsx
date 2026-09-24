@@ -46,6 +46,7 @@ export default function ReactionTest({
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       clearTimer();

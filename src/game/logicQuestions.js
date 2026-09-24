@@ -1,10 +1,25 @@
 function shuffle(items) {
-  return [...items].sort(() => Math.random() - 0.5);
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
 }
 
 function makeOptions(correct, distractors) {
-  const unique = [...new Set([correct, ...distractors].filter((item) => item !== correct))];
-  return shuffle([correct, ...unique.slice(0, 3)]).map(String);
+  const options = [String(correct)];
+  for (const distractor of distractors) {
+    const value = String(distractor);
+    if (value !== String(correct) && !options.includes(value)) options.push(value);
+  }
+  let offset = 1;
+  while (options.length < 4) {
+    const fallback = String(Number(correct) + offset * (offset % 2 === 0 ? -1 : 1) * 2);
+    if (!options.includes(fallback)) options.push(fallback);
+    offset += 1;
+  }
+  return shuffle(options.slice(0, 4));
 }
 
 function numberSequence(level) {

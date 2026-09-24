@@ -38,6 +38,7 @@ export default function AttentionTest({ level, difficultyProfile, onFinish, onEx
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       clearTimer();
