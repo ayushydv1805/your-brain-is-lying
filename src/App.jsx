@@ -593,7 +593,6 @@ function App() {
               <span><b>04</b> Attention engine ✓</span>
               <span><b>05</b> Adaptive difficulty ✓</span>
               <span><b>06</b> Logic engine ✓</span>
-              <span><b>07</b> Impulse control ✓</span>
             </div>
           </section>
         )}
@@ -714,8 +713,8 @@ function App() {
               </p>
 
               <div className="about-actions">
-                <button className="primary-button" onClick={startLogic}>
-                  <span>Test my logic</span>
+                <button className="primary-button" onClick={startImpulse}>
+                  <span>Test my impulse control</span>
                   <span className="button-arrow">→</span>
                 </button>
 
@@ -791,6 +790,15 @@ function App() {
         <span>YOUR BRAIN IS LYING © 2026</span>
         <span>Phase 7 · Impulse Control</span>
       </footer>
+
+      {levelUp && (
+        <LevelUpCelebration
+          level={levelUp.level}
+          previousLevel={levelUp.previousLevel}
+          tier={levelUp.tier}
+          onClose={() => setLevelUp(null)}
+        />
+      )}
     </div>
   );
 }
