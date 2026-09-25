@@ -49,11 +49,11 @@ A fast-paced cognitive challenge game built with React + Vite.
 ### Phase 5 — Adaptive difficulty
 - Shared five-tier difficulty engine: Warm Up, Focused, Pressure, Brutal, Insane
 - Ten player levels mapped across the five difficulty tiers
-- Per-skill mastery for Reaction, Memory, and Attention
+- Per-skill mastery for Reaction, Memory, Attention, Logic, and Impulse
 - Mastery is blended from recent completed runs and persisted locally
 - Strong performance can temporarily push a skill one challenge level harder
 - Struggling performance can temporarily pull a skill one challenge level back
-- Reaction, Memory, and Attention all consume the same adaptive difficulty profile
+- All five skills consume the same adaptive difficulty profile
 - Every result screen shows the difficulty tier used for that run
 - Level-up celebration appears when XP crosses a new level
 - Level-up screen announces the next difficulty tier
@@ -89,7 +89,6 @@ npm run preview
 
 ## Planned
 
-- Brain report across all skills
 - Achievements and streaks
 - Multiplayer / leaderboard backend
 
@@ -97,7 +96,7 @@ npm run preview
 - Fully playable five-round logic challenge
 - Fresh sequence, alternating-rule, equation, ordering, and deduction problems
 - Four-option answers with immediate correctness feedback
-- Per-round timer that tightens with player level and round number
+- Fixed 60-second window per logic run, with adaptive question difficulty
 - Detailed logic result screen with answers and explanations
 - Logic score, accuracy, solve speed, XP, and persistent personal best
 - Logic mastery feeds the shared adaptive difficulty engine
@@ -112,3 +111,12 @@ npm run preview
 - Impulse XP, best accuracy, run history, and persistent mastery
 - Impulse mastery feeds the shared adaptive difficulty engine
 - Existing localStorage profiles remain backward compatible
+
+### Phase 8 — Brain report
+- Dedicated report dashboard across all five live skills
+- Shared XP, current level, average mastery, and adaptive difficulty snapshot
+- Per-skill mastery bars, completed run counts, and personal bests
+- Highest/lowest current mastery shown as descriptive dashboard metrics
+- Recent local run history with skill, result metric, XP, and timestamp
+- Direct replay buttons for every skill
+- Backward-compatible localStorage migration for existing players

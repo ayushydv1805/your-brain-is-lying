@@ -10,9 +10,10 @@ import LogicTest from './components/LogicTest';
 import LogicResult from './components/LogicResult';
 import ImpulseTest from './components/ImpulseTest';
 import ImpulseResult from './components/ImpulseResult';
+import BrainReport from './components/BrainReport';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
-import { loadPlayer, savePlayer } from './game/storage';
+import { appendRunHistory, loadPlayer, savePlayer } from './game/storage';
 import {
   getDifficultyProfile,
   getDifficultyTier,
@@ -125,15 +126,16 @@ function App() {
       },
     }, runResult);
 
-    savePlayer(nextPlayer);
-    if (nextPlayer.level > current.level) {
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    savePlayer(savedPlayer);
+    if (savedPlayer.level > current.level) {
       setLevelUp({
-        level: nextPlayer.level,
+        level: savedPlayer.level,
         previousLevel: current.level,
-        tier: getDifficultyTier(nextPlayer.level),
+        tier: getDifficultyTier(savedPlayer.level),
       });
     }
-    setPlayer(nextPlayer);
+    setPlayer(savedPlayer);
     setResult(runResult);
     setView('reaction-result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -155,15 +157,16 @@ function App() {
       },
     }, runResult);
 
-    savePlayer(nextPlayer);
-    if (nextPlayer.level > current.level) {
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    savePlayer(savedPlayer);
+    if (savedPlayer.level > current.level) {
       setLevelUp({
-        level: nextPlayer.level,
+        level: savedPlayer.level,
         previousLevel: current.level,
-        tier: getDifficultyTier(nextPlayer.level),
+        tier: getDifficultyTier(savedPlayer.level),
       });
     }
-    setPlayer(nextPlayer);
+    setPlayer(savedPlayer);
     setResult(runResult);
     setView('memory-result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -180,9 +183,10 @@ function App() {
       totalLogicRuns: current.totalLogicRuns + 1,
       lastLogicRun: { score: runResult.score, accuracy: runResult.accuracy, average: runResult.average, at: new Date().toISOString() },
     }, runResult);
-    savePlayer(nextPlayer);
-    if (nextPlayer.level > current.level) setLevelUp({ level: nextPlayer.level, previousLevel: current.level, tier: getDifficultyTier(nextPlayer.level) });
-    setPlayer(nextPlayer);
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    savePlayer(savedPlayer);
+    if (savedPlayer.level > current.level) setLevelUp({ level: savedPlayer.level, previousLevel: current.level, tier: getDifficultyTier(savedPlayer.level) });
+    setPlayer(savedPlayer);
     setResult(runResult);
     setView('logic-result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -208,15 +212,16 @@ function App() {
       },
     }, runResult);
 
-    savePlayer(nextPlayer);
-    if (nextPlayer.level > current.level) {
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    savePlayer(savedPlayer);
+    if (savedPlayer.level > current.level) {
       setLevelUp({
-        level: nextPlayer.level,
+        level: savedPlayer.level,
         previousLevel: current.level,
-        tier: getDifficultyTier(nextPlayer.level),
+        tier: getDifficultyTier(savedPlayer.level),
       });
     }
-    setPlayer(nextPlayer);
+    setPlayer(savedPlayer);
     setResult(runResult);
     setView('impulse-result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -242,15 +247,16 @@ function App() {
       },
     }, runResult);
 
-    savePlayer(nextPlayer);
-    if (nextPlayer.level > current.level) {
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    savePlayer(savedPlayer);
+    if (savedPlayer.level > current.level) {
       setLevelUp({
-        level: nextPlayer.level,
+        level: savedPlayer.level,
         previousLevel: current.level,
-        tier: getDifficultyTier(nextPlayer.level),
+        tier: getDifficultyTier(savedPlayer.level),
       });
     }
-    setPlayer(nextPlayer);
+    setPlayer(savedPlayer);
     setResult(runResult);
     setView('attention-result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -263,6 +269,16 @@ function App() {
     setPlayer(loadPlayer());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (view === 'report') {
+    return (
+      <BrainReport
+        player={player}
+        onPlay={startTest}
+        onHome={goHome}
+      />
+    );
+  }
 
   if (view === 'reaction') {
     return (
@@ -474,6 +490,7 @@ function App() {
           <button onClick={() => scrollTo('tests')}>Tests</button>
           <button onClick={() => scrollTo('levels')}>Levels</button>
           <button onClick={() => scrollTo('about')}>How it works</button>
+          <button onClick={() => setView('report')}>Report</button>
         </nav>
 
         <button className="nav-cta" onClick={startReaction}>
@@ -518,6 +535,8 @@ function App() {
               <span><b>10+</b> difficulty levels</span>
               <i />
               <span><b>∞</b> combinations</span>
+              <i />
+              <button className="hero-report-link" onClick={() => setView('report')}>View report ↗</button>
             </div>
           </div>
 
@@ -593,9 +612,28 @@ function App() {
               <span><b>04</b> Attention engine ✓</span>
               <span><b>05</b> Adaptive difficulty ✓</span>
               <span><b>06</b> Logic engine ✓</span>
+              <span><b>07</b> Impulse control ✓</span>
+              <span><b>08</b> Brain report ✓</span>
+              <span><b>07</b> Impulse control ✓</span>
+              <span><b>08</b> Brain report ✓</span>
             </div>
           </section>
         )}
+
+        <section className="report-teaser-section">
+          <div className="report-teaser-copy">
+            <span className="section-kicker">YOUR PROGRESS, COMPILED</span>
+            <h2>Stop guessing. <span>Read the report.</span></h2>
+            <p>
+              See every skill's mastery, personal best, run count, XP progress,
+              adaptive difficulty, and recent attempts in one place.
+            </p>
+          </div>
+          <button className="primary-button" onClick={() => setView('report')}>
+            <span>Open brain report</span>
+            <span className="button-arrow">→</span>
+          </button>
+        </section>
 
         <section className="section tests-section" id="tests">
           <div className="section-heading">
@@ -699,17 +737,17 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 7 · IMPULSE CONTROL
+                PHASE 8 · BRAIN REPORT
               </span>
 
               <h2>
-                Control the click. <span>Then commit.</span>
+                Five skills. <span>One report.</span>
               </h2>
 
               <p>
-                Impulse control now joins the live test suite with fresh go/no-go signals,
-                false-alarm tracking, response timing, and its own mastery score inside
-                the shared adaptive system.
+                The new brain report brings your five skill tracks together with mastery,
+                personal bests, completed runs, XP progress, adaptive difficulty, and a
+                short local history of your latest attempts.
               </p>
 
               <div className="about-actions">
@@ -718,8 +756,8 @@ function App() {
                   <span className="button-arrow">→</span>
                 </button>
 
-                <button className="ghost-button" onClick={startMemory}>
-                  Memory test
+                <button className="ghost-button" onClick={() => setView('report')}>
+                  Open brain report
                 </button>
               </div>
             </div>
@@ -788,7 +826,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 7 · Impulse Control</span>
+        <span>Phase 8 · Brain Report</span>
       </footer>
 
       {levelUp && (
