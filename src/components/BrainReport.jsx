@@ -150,7 +150,7 @@ function BrainReport({ player, onPlay, onHome }) {
           <div className="report-level-card">
             <div className="report-level-row">
               <span>LEVEL {String(player.level).padStart(2, '0')}</span>
-              <DifficultyBadge difficulty={difficulty} />
+              <DifficultyBadge profile={difficulty} />
             </div>
             <div className="report-level-value">{averageMastery}%</div>
             <div className="report-level-label">average mastery</div>

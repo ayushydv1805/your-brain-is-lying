@@ -614,8 +614,6 @@ function App() {
               <span><b>06</b> Logic engine ✓</span>
               <span><b>07</b> Impulse control ✓</span>
               <span><b>08</b> Brain report ✓</span>
-              <span><b>07</b> Impulse control ✓</span>
-              <span><b>08</b> Brain report ✓</span>
             </div>
           </section>
         )}
@@ -751,8 +749,8 @@ function App() {
               </p>
 
               <div className="about-actions">
-                <button className="primary-button" onClick={startImpulse}>
-                  <span>Test my impulse control</span>
+                <button className="primary-button" onClick={() => setView('report')}>
+                  <span>Open my brain report</span>
                   <span className="button-arrow">→</span>
                 </button>
 
