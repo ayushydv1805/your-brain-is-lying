@@ -112,7 +112,7 @@ function App() {
   );
 
   const finalizeRun = (current, nextPlayer, runResult) => {
-    const savedPlayer = finalizeRun(current, nextPlayer, runResult);
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
     const previousUnlocked = new Set(current.unlockedAchievements || []);
     const newlyUnlocked = (savedPlayer.unlockedAchievements || [])
       .filter((id) => !previousUnlocked.has(id))
