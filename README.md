@@ -89,7 +89,6 @@ npm run preview
 
 ## Planned
 
-- Achievements and streaks
 - Multiplayer / leaderboard backend
 
 ### Phase 6 — Logic engine
@@ -120,3 +119,14 @@ npm run preview
 - Recent local run history with skill, result metric, XP, and timestamp
 - Direct replay buttons for every skill
 - Backward-compatible localStorage migration for existing players
+
+### Phase 9 — Achievements & streaks
+- Persistent achievement system across all five cognitive skills
+- Twelve milestone achievements covering runs, skill coverage, streaks, best scores, mastery, and progression
+- Three-day and seven-day consistency streaks
+- Best streak tracking with local calendar activity
+- Automatic achievement unlock detection after completed runs
+- Dedicated achievements dashboard with All / Unlocked / Locked filters
+- Fourteen-day activity strip showing daily test consistency
+- Achievement unlock celebration after milestones are reached
+- Existing player profiles migrate safely and recover activity from recent run history

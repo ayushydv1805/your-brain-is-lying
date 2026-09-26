@@ -11,8 +11,11 @@ import LogicResult from './components/LogicResult';
 import ImpulseTest from './components/ImpulseTest';
 import ImpulseResult from './components/ImpulseResult';
 import BrainReport from './components/BrainReport';
+import Achievements from './components/Achievements';
+import AchievementCelebration from './components/AchievementCelebration';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
+import { getAchievementById } from './game/achievementEngine';
 import { appendRunHistory, loadPlayer, savePlayer } from './game/storage';
 import {
   getDifficultyProfile,
@@ -73,6 +76,7 @@ function App() {
   const [player, setPlayer] = useState(loadPlayer);
   const [result, setResult] = useState(null);
   const [levelUp, setLevelUp] = useState(null);
+  const [achievementQueue, setAchievementQueue] = useState([]);
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -107,6 +111,27 @@ function App() {
     'overall',
   );
 
+  const finalizeRun = (current, nextPlayer, runResult) => {
+    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const previousUnlocked = new Set(current.unlockedAchievements || []);
+    const newlyUnlocked = (savedPlayer.unlockedAchievements || [])
+      .filter((id) => !previousUnlocked.has(id))
+      .map(getAchievementById)
+      .filter(Boolean);
+
+    if (newlyUnlocked.length > 0) {
+      setAchievementQueue((queue) => {
+        const queuedIds = new Set(queue.map((item) => item.id));
+        return [
+          ...queue,
+          ...newlyUnlocked.filter((item) => !queuedIds.has(item.id)),
+        ];
+      });
+    }
+
+    return savedPlayer;
+  };
+
   const finishReaction = (runResult) => {
     const current = loadPlayer();
     const nextXp = current.xp + runResult.xp;
@@ -126,7 +151,7 @@ function App() {
       },
     }, runResult);
 
-    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const savedPlayer = finalizeRun(current, nextPlayer, runResult);
     savePlayer(savedPlayer);
     if (savedPlayer.level > current.level) {
       setLevelUp({
@@ -157,7 +182,7 @@ function App() {
       },
     }, runResult);
 
-    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const savedPlayer = finalizeRun(current, nextPlayer, runResult);
     savePlayer(savedPlayer);
     if (savedPlayer.level > current.level) {
       setLevelUp({
@@ -183,7 +208,7 @@ function App() {
       totalLogicRuns: current.totalLogicRuns + 1,
       lastLogicRun: { score: runResult.score, accuracy: runResult.accuracy, average: runResult.average, at: new Date().toISOString() },
     }, runResult);
-    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const savedPlayer = finalizeRun(current, nextPlayer, runResult);
     savePlayer(savedPlayer);
     if (savedPlayer.level > current.level) setLevelUp({ level: savedPlayer.level, previousLevel: current.level, tier: getDifficultyTier(savedPlayer.level) });
     setPlayer(savedPlayer);
@@ -212,7 +237,7 @@ function App() {
       },
     }, runResult);
 
-    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const savedPlayer = finalizeRun(current, nextPlayer, runResult);
     savePlayer(savedPlayer);
     if (savedPlayer.level > current.level) {
       setLevelUp({
@@ -247,7 +272,7 @@ function App() {
       },
     }, runResult);
 
-    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const savedPlayer = finalizeRun(current, nextPlayer, runResult);
     savePlayer(savedPlayer);
     if (savedPlayer.level > current.level) {
       setLevelUp({
@@ -276,6 +301,24 @@ function App() {
         player={player}
         onPlay={startTest}
         onHome={goHome}
+        onAchievements={() => {
+          setView('achievements');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
+  if (view === 'achievements') {
+    return (
+      <Achievements
+        player={player}
+        onPlay={startTest}
+        onHome={goHome}
+        onReport={() => {
+          setView('report');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
     );
   }
@@ -491,6 +534,7 @@ function App() {
           <button onClick={() => scrollTo('levels')}>Levels</button>
           <button onClick={() => scrollTo('about')}>How it works</button>
           <button onClick={() => setView('report')}>Report</button>
+          <button onClick={() => setView('achievements')}>Achievements</button>
         </nav>
 
         <button className="nav-cta" onClick={startReaction}>
@@ -614,6 +658,7 @@ function App() {
               <span><b>06</b> Logic engine ✓</span>
               <span><b>07</b> Impulse control ✓</span>
               <span><b>08</b> Brain report ✓</span>
+              <span><b>09</b> Achievements &amp; streaks ✓</span>
             </div>
           </section>
         )}
@@ -735,27 +780,27 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 8 · BRAIN REPORT
+                PHASE 9 · ACHIEVEMENTS &amp; STREAKS
               </span>
 
               <h2>
-                Five skills. <span>One report.</span>
+                Make progress <span>visible.</span>
               </h2>
 
               <p>
-                The new brain report brings your five skill tracks together with mastery,
-                personal bests, completed runs, XP progress, adaptive difficulty, and a
-                short local history of your latest attempts.
+                Achievements now turn milestones into visible progress, while daily
+                activity creates a persistent streak. Every completed test updates
+                both systems from the same local player profile.
               </p>
 
               <div className="about-actions">
-                <button className="primary-button" onClick={() => setView('report')}>
-                  <span>Open my brain report</span>
+                <button className="primary-button" onClick={() => setView('achievements')}>
+                  <span>View achievements</span>
                   <span className="button-arrow">→</span>
                 </button>
 
                 <button className="ghost-button" onClick={() => setView('report')}>
-                  Open brain report
+                  Brain report
                 </button>
               </div>
             </div>
@@ -764,6 +809,14 @@ function App() {
               <div>
                 <strong>{player.xp}</strong>
                 <span>current XP</span>
+              </div>
+              <div>
+                <strong>{player.currentStreak || 0}</strong>
+                <span>current streak</span>
+              </div>
+              <div>
+                <strong>{player.bestStreak || 0}</strong>
+                <span>best streak</span>
               </div>
               <div>
                 <strong>{player.level}</strong>
@@ -824,7 +877,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 8 · Brain Report</span>
+        <span>Phase 9 · Achievements &amp; Streaks</span>
       </footer>
 
       {levelUp && (
@@ -833,6 +886,15 @@ function App() {
           previousLevel={levelUp.previousLevel}
           tier={levelUp.tier}
           onClose={() => setLevelUp(null)}
+        />
+      )}
+
+      {achievementQueue.length > 0 && (
+        <AchievementCelebration
+          achievement={achievementQueue[0]}
+          onClose={() =>
+            setAchievementQueue((queue) => queue.slice(1))
+          }
         />
       )}
     </div>
