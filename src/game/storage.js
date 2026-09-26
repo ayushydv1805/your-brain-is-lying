@@ -1,3 +1,5 @@
+import { getEligibleAchievementIds } from './achievementEngine';
+
 const STORAGE_KEY = 'your-brain-is-lying-player';
 
 const DEFAULT_PLAYER = {
@@ -19,6 +21,10 @@ const DEFAULT_PLAYER = {
   lastLogicRun: null,
   lastImpulseRun: null,
   runHistory: [],
+  activityDates: [],
+  currentStreak: 0,
+  bestStreak: 0,
+  unlockedAchievements: [],
   skillMastery: {
     reaction: 0,
     memory: 0,
@@ -36,6 +42,77 @@ function safeMastery(value) {
   return Math.max(0, Math.min(100, safeNumber(value)));
 }
 
+function dateKeyFromTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return year + '-' + month + '-' + day;
+}
+
+function normalizeDateKeys(dates) {
+  return [...new Set(
+    (Array.isArray(dates) ? dates : [])
+      .filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value)),
+  )].sort((a, b) => b.localeCompare(a)).slice(0, 180);
+}
+
+function dateKeyToTime(key) {
+  const [year, month, day] = key.split('-').map(Number);
+  return new Date(year, month - 1, day, 12, 0, 0, 0).getTime();
+}
+
+function diffDays(later, earlier) {
+  return Math.round((dateKeyToTime(later) - dateKeyToTime(earlier)) / 86400000);
+}
+
+function getTodayKey() {
+  return dateKeyFromTimestamp(new Date().toISOString());
+}
+
+export function getStreakStats(activityDates) {
+  const sortedAsc = normalizeDateKeys(activityDates).sort((a, b) => a.localeCompare(b));
+  if (sortedAsc.length === 0) {
+    return { currentStreak: 0, bestStreak: 0 };
+  }
+
+  let bestStreak = 1;
+  let streak = 1;
+
+  for (let index = 1; index < sortedAsc.length; index += 1) {
+    if (diffDays(sortedAsc[index], sortedAsc[index - 1]) === 1) {
+      streak += 1;
+      bestStreak = Math.max(bestStreak, streak);
+    } else {
+      streak = 1;
+    }
+  }
+
+  const today = getTodayKey();
+  const latest = sortedAsc[sortedAsc.length - 1];
+  const latestGap = diffDays(today, latest);
+  let currentStreak = 0;
+
+  if (latestGap === 0 || latestGap === 1) {
+    currentStreak = 1;
+    for (let index = sortedAsc.length - 1; index > 0; index -= 1) {
+      if (diffDays(sortedAsc[index], sortedAsc[index - 1]) !== 1) break;
+      currentStreak += 1;
+    }
+  }
+
+  return { currentStreak, bestStreak };
+}
+
+function normalizeUnlocked(ids) {
+  return [...new Set(
+    (Array.isArray(ids) ? ids : [])
+      .filter((value) => typeof value === 'string'),
+  )];
+}
+
 export function loadPlayer() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -49,7 +126,15 @@ export function loadPlayer() {
         .slice(0, 25)
       : [];
 
-    return {
+    const recoveredActivityDates =
+      Array.isArray(parsed.activityDates) && parsed.activityDates.length > 0
+        ? parsed.activityDates
+        : parsedHistory.map((entry) => dateKeyFromTimestamp(entry.at));
+
+    const activityDates = normalizeDateKeys(recoveredActivityDates);
+    const streak = getStreakStats(activityDates);
+
+    const basePlayer = {
       ...DEFAULT_PLAYER,
       ...parsed,
       xp: safeNumber(parsed.xp),
@@ -68,6 +153,10 @@ export function loadPlayer() {
       totalLogicRuns: safeNumber(parsed.totalLogicRuns),
       totalImpulseRuns: safeNumber(parsed.totalImpulseRuns),
       runHistory: parsedHistory,
+      activityDates,
+      currentStreak: streak.currentStreak,
+      bestStreak: Math.max(safeNumber(parsed.bestStreak), streak.bestStreak),
+      unlockedAchievements: normalizeUnlocked(parsed.unlockedAchievements),
       skillMastery: {
         reaction: safeMastery(parsedMastery.reaction),
         memory: safeMastery(parsedMastery.memory),
@@ -75,6 +164,16 @@ export function loadPlayer() {
         logic: safeMastery(parsedMastery.logic),
         impulse: safeMastery(parsedMastery.impulse),
       },
+    };
+
+    const eligible = getEligibleAchievementIds(basePlayer);
+
+    return {
+      ...basePlayer,
+      unlockedAchievements: normalizeUnlocked([
+        ...basePlayer.unlockedAchievements,
+        ...eligible,
+      ]),
     };
   } catch {
     return { ...DEFAULT_PLAYER };
@@ -109,9 +208,29 @@ export function appendRunHistory(player, result) {
     at,
   };
 
-  return {
+  const nextHistory = [entry, ...(player.runHistory || [])].slice(0, 25);
+  const activityDate = dateKeyFromTimestamp(at);
+  const activityDates = normalizeDateKeys([
+    ...(player.activityDates || []),
+    activityDate,
+  ].filter(Boolean));
+  const streak = getStreakStats(activityDates);
+
+  const progressPlayer = {
     ...player,
-    runHistory: [entry, ...(player.runHistory || [])].slice(0, 25),
+    runHistory: nextHistory,
+    activityDates,
+    currentStreak: streak.currentStreak,
+    bestStreak: Math.max(player.bestStreak || 0, streak.bestStreak),
+  };
+  const eligible = getEligibleAchievementIds(progressPlayer);
+
+  return {
+    ...progressPlayer,
+    unlockedAchievements: normalizeUnlocked([
+      ...(player.unlockedAchievements || []),
+      ...eligible,
+    ]),
   };
 }
 
