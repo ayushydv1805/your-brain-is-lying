@@ -1,6 +1,7 @@
 import DifficultyBadge from './DifficultyBadge';
 import { GAME_CONFIG, getLevelProgress } from '../game/gameConfig';
 import { getDifficultyProfile, getSkillMastery } from '../game/difficultyEngine';
+import { getAchievementStats } from '../game/achievementEngine';
 
 const SKILLS = [
   {
@@ -85,7 +86,7 @@ function formatDate(timestamp) {
   });
 }
 
-function BrainReport({ player, onPlay, onHome }) {
+function BrainReport({ player, onPlay, onHome, onAchievements }) {
   const masteryValues = SKILLS.map((skill) => getSkillMastery(player, skill.key));
   const averageMastery = Math.round(
     masteryValues.reduce((sum, value) => sum + value, 0) / SKILLS.length,
@@ -131,15 +132,20 @@ function BrainReport({ player, onPlay, onHome }) {
           <span className="report-live-dot" />
           <span>PERSONAL BRAIN REPORT</span>
         </div>
-        <button className="ghost-button report-home" onClick={onHome}>
-          Back home
-        </button>
+        <div className="report-topbar-buttons">
+          <button className="ghost-button report-home" onClick={onAchievements}>
+            Achievements
+          </button>
+          <button className="ghost-button report-home" onClick={onHome}>
+            Back home
+          </button>
+        </div>
       </header>
 
       <main className="report-main">
         <section className="report-hero">
           <div>
-            <span className="section-kicker">PHASE 8 · BRAIN REPORT</span>
+            <span className="section-kicker">PHASE 9 · ACHIEVEMENTS &amp; STREAKS</span>
             <h1>See the pattern behind <span>your play.</span></h1>
             <p>
               One dashboard for your five skill tracks, shared XP, adaptive
@@ -188,6 +194,16 @@ function BrainReport({ player, onPlay, onHome }) {
             <span className="report-summary-icon">{lowestSkill.icon}</span>
             <strong>{getSkillMastery(player, lowestSkill.key)}%</strong>
             <span>Lowest current mastery · {lowestSkill.label}</span>
+          </article>
+          <article className="report-summary-card">
+            <span className="report-summary-icon">⚡</span>
+            <strong>{player.currentStreak || 0}</strong>
+            <span>Current day streak</span>
+          </article>
+          <article className="report-summary-card">
+            <span className="report-summary-icon">🏆</span>
+            <strong>{getAchievementStats(player).unlocked}/{getAchievementStats(player).total}</strong>
+            <span>Achievements unlocked</span>
           </article>
         </section>
 
@@ -296,7 +312,7 @@ function BrainReport({ player, onPlay, onHome }) {
 
       <footer className="report-footer">
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 8 · Brain Report</span>
+        <span>Phase 9 · Achievements &amp; Streaks</span>
       </footer>
     </div>
   );
