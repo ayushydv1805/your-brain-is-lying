@@ -35,6 +35,7 @@ export default function ReactionTest({
   const timerRef = useRef(null);
   const goAtRef = useRef(0);
   const mountedRef = useRef(true);
+  const roundResolvedRef = useRef(false);
 
   const difficulty = getReactionDifficulty(effectiveLevel);
 
@@ -57,6 +58,7 @@ export default function ReactionTest({
     clearTimer();
     setFalseStart(false);
     setLastTime(null);
+    roundResolvedRef.current = false;
     setPhase(PHASES.WAITING);
 
     const delay = randomDelay(difficulty.minDelay, difficulty.maxDelay);
@@ -99,13 +101,16 @@ export default function ReactionTest({
     }
 
     if (phase === PHASES.WAITING) {
+      if (roundResolvedRef.current) return;
+      roundResolvedRef.current = true;
       clearTimer();
       setFalseStart(true);
       setPhase(PHASES.RESULT);
       return;
     }
 
-    if (phase !== PHASES.GO) return;
+    if (phase !== PHASES.GO || roundResolvedRef.current) return;
+    roundResolvedRef.current = true;
 
     const reaction = Math.max(
       1,
@@ -126,6 +131,11 @@ export default function ReactionTest({
   };
 
   const continueRound = () => {
+    if (falseStart) {
+      beginRound();
+      return;
+    }
+
     setRound((value) => value + 1);
     beginRound();
   };
@@ -297,7 +307,7 @@ export default function ReactionTest({
             className="primary-button game-next"
             onClick={() => onFinish(buildRunResult())}
           >
-            <span>See brain report</span>
+            <span>See result</span>
             <span className="button-arrow">→</span>
           </button>
         )}
