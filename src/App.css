@@ -4307,3 +4307,206 @@ footer {
     justify-content: flex-end;
   }
 }
+
+/* =========================
+   PHASE 9 HARDENING — UI POLISH
+   ========================= */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(18px);
+  background: rgba(8,11,22,.72);
+}
+
+.topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(119,116,255,.3), transparent);
+  pointer-events: none;
+}
+
+.nav-links button {
+  position: relative;
+  padding: 8px 0;
+}
+
+.nav-links button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 1px;
+  height: 1px;
+  background: #7774ff;
+  transition: right .2s ease;
+}
+
+.nav-links button:hover::after {
+  right: 0;
+}
+
+.nav-cta,
+.primary-button,
+.ghost-button,
+.report-play-button,
+.achievement-filters button,
+.achievement-mini {
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.nav-cta:hover {
+  border-color: rgba(119,116,255,.38);
+  box-shadow: 0 12px 30px rgba(20,24,60,.25);
+}
+
+.primary-button:hover {
+  box-shadow: 0 18px 45px rgba(86,80,255,.27);
+}
+
+.primary-button:active,
+.ghost-button:active,
+.nav-cta:active,
+.report-play-button:active,
+.achievement-mini:active {
+  transform: translateY(1px);
+}
+
+.test-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(119,116,255,.3), transparent);
+  opacity: .65;
+}
+
+.test-card:nth-child(2)::before {
+  background: linear-gradient(90deg, transparent, rgba(91,224,202,.28), transparent);
+}
+
+.test-card:nth-child(3)::before {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+}
+
+.test-card:nth-child(4)::before {
+  background: linear-gradient(90deg, transparent, rgba(255,184,92,.28), transparent);
+}
+
+.test-card:nth-child(5)::before {
+  background: linear-gradient(90deg, transparent, rgba(222,126,255,.28), transparent);
+}
+
+.memory-option,
+.logic-option,
+.attention-cell,
+.reaction-pad,
+.impulse-stimulus {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-quick-nav {
+  display: none;
+}
+
+.achievement-empty-state {
+  padding: 54px 24px;
+  border: 1px dashed rgba(255,255,255,.1);
+  border-radius: 18px;
+  background: rgba(15,19,35,.45);
+  text-align: center;
+}
+
+.achievement-empty-state > span {
+  color: #7774ff;
+  font-size: 28px;
+}
+
+.achievement-empty-state h3 {
+  margin: 14px 0 7px;
+  font: 600 18px 'Space Grotesk', sans-serif;
+}
+
+.achievement-empty-state p {
+  margin: 0;
+  color: #6f7790;
+  font-size: 11px;
+}
+
+.report-level-card {
+  overflow: hidden;
+}
+
+.report-topbar-buttons .report-home {
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    position: relative;
+    width: min(100% - 28px, 1240px);
+  }
+
+  .mobile-quick-nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 16px;
+    padding: 5px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    background: rgba(255,255,255,.025);
+  }
+
+  .mobile-quick-nav button {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 5px;
+    background: transparent;
+    color: #777e97;
+    cursor: pointer;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .03em;
+  }
+
+  .mobile-quick-nav button:hover,
+  .mobile-quick-nav button:focus-visible {
+    color: #f1f3ff;
+    background: rgba(119,116,255,.11);
+  }
+
+  .trust-row {
+    gap: 8px 11px;
+  }
+
+  .report-topbar-buttons {
+    gap: 5px;
+  }
+
+  .report-topbar-buttons .report-home {
+    padding: 8px 9px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-links button::after {
+    transition: none;
+  }
+
+  .test-card::before {
+    opacity: 1;
+  }
+}
