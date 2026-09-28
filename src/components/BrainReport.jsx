@@ -116,6 +116,7 @@ function BrainReport({ player, onPlay, onHome, onAchievements }) {
       ? 0
       : GAME_CONFIG.xpPerLevel - (player.xp % GAME_CONFIG.xpPerLevel);
   const history = Array.isArray(player.runHistory) ? player.runHistory : [];
+  const achievementStats = getAchievementStats(player);
 
   return (
     <div className="report-page">
@@ -145,7 +146,7 @@ function BrainReport({ player, onPlay, onHome, onAchievements }) {
       <main className="report-main">
         <section className="report-hero">
           <div>
-            <span className="section-kicker">PHASE 9 · ACHIEVEMENTS &amp; STREAKS</span>
+            <span className="section-kicker">PHASE 8 · BRAIN REPORT</span>
             <h1>See the pattern behind <span>your play.</span></h1>
             <p>
               One dashboard for your five skill tracks, shared XP, adaptive
@@ -202,7 +203,7 @@ function BrainReport({ player, onPlay, onHome, onAchievements }) {
           </article>
           <article className="report-summary-card">
             <span className="report-summary-icon">🏆</span>
-            <strong>{getAchievementStats(player).unlocked}/{getAchievementStats(player).total}</strong>
+            <strong>{achievementStats.unlocked}/{achievementStats.total}</strong>
             <span>Achievements unlocked</span>
           </article>
         </section>
@@ -312,7 +313,7 @@ function BrainReport({ player, onPlay, onHome, onAchievements }) {
 
       <footer className="report-footer">
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 9 · Achievements &amp; Streaks</span>
+        <span>Phase 8 · Brain Report</span>
       </footer>
     </div>
   );
