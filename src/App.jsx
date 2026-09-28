@@ -85,6 +85,7 @@ function App() {
   const startTest = (test) => {
     setResult(null);
     setLevelUp(null);
+    setAchievementQueue([]);
     setView(test);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -291,6 +292,7 @@ function App() {
     setView('home');
     setResult(null);
     setLevelUp(null);
+    setAchievementQueue([]);
     setPlayer(loadPlayer());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -581,6 +583,12 @@ function App() {
               <span><b>∞</b> combinations</span>
               <i />
               <button className="hero-report-link" onClick={() => setView('report')}>View report ↗</button>
+            </div>
+
+            <div className="mobile-quick-nav" aria-label="Quick navigation">
+              <button onClick={() => scrollTo('tests')}>Tests</button>
+              <button onClick={() => setView('report')}>Report</button>
+              <button onClick={() => setView('achievements')}>Achievements</button>
             </div>
           </div>
 
@@ -889,7 +897,7 @@ function App() {
         />
       )}
 
-      {achievementQueue.length > 0 && (
+      {achievementQueue.length > 0 && !levelUp && (
         <AchievementCelebration
           achievement={achievementQueue[0]}
           onClose={() =>
