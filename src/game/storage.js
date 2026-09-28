@@ -35,7 +35,8 @@ const DEFAULT_PLAYER = {
 };
 
 function safeNumber(value, fallback = 0) {
-  return Number.isFinite(value) ? value : fallback;
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : fallback;
 }
 
 function safeMastery(value) {
@@ -235,5 +236,9 @@ export function appendRunHistory(player, result) {
 }
 
 export function savePlayer(player) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
+  } catch {
+    // Storage can be unavailable in private/restricted browser contexts.
+  }
 }
