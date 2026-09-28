@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   GAME_CONFIG,
-  getImpulseDifficulty,
   getImpulseRating,
   getImpulseXp,
 } from '../game/gameConfig';
@@ -66,6 +65,7 @@ export default function ImpulseTest({
   const runStatsRef = useRef(emptyRunStats());
   const roundStatsRef = useRef(emptyRoundStats());
   const finishedRef = useRef(false);
+  const trialResolvedRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
@@ -97,6 +97,7 @@ export default function ImpulseTest({
       setTrialIndex(0);
       setRemainingMs(0);
       setLastOutcome(null);
+      trialResolvedRef.current = false;
       setRoundSummary(emptyRoundStats());
       setPhase(PHASES.ACTIVE);
     },
@@ -112,9 +113,10 @@ export default function ImpulseTest({
 
   const resolveTrial = useCallback(
     (clicked) => {
-      if (!mountedRef.current || phase !== PHASES.ACTIVE) return;
+      if (!mountedRef.current || phase !== PHASES.ACTIVE || trialResolvedRef.current) return;
 
       const trial = question.trials[trialIndex];
+      trialResolvedRef.current = true;
       if (!trial) return;
 
       clearTimers();
@@ -465,7 +467,7 @@ export default function ImpulseTest({
               <button className="primary-button" onClick={continueRound}>
                 <span>
                   {round >= GAME_CONFIG.totalImpulseRounds
-                    ? 'See impulse report'
+                    ? 'See impulse result'
                     : 'Next round'}
                 </span>
                 <span className="button-arrow">→</span>

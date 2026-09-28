@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GAME_CONFIG, getLogicDifficulty, getLogicRating, getLogicXp } from '../game/gameConfig';
 import { createLogicRound } from '../game/logicQuestions';
 import DifficultyBadge from './DifficultyBadge';
@@ -14,6 +14,7 @@ export default function LogicTest({ level, difficultyProfile, onFinish, onExit }
   const [elapsed, setElapsed] = useState(0);
   const [history, setHistory] = useState([]);
   const [startedAt, setStartedAt] = useState(() => performance.now());
+  const roundResolvedRef = useRef(false);
   const timeLimit = getLogicDifficulty(effectiveLevel, round).timeLimit;
   const progress = Math.min(100, (elapsed / timeLimit) * 100);
 
@@ -21,6 +22,7 @@ export default function LogicTest({ level, difficultyProfile, onFinish, onExit }
     setQuestion(createLogicRound(effectiveLevel, round));
     setSelected(null);
     setElapsed(0);
+    roundResolvedRef.current = false;
     setPhase(PHASES.QUESTION);
     setStartedAt(performance.now());
   }, [effectiveLevel, round]);
@@ -30,7 +32,8 @@ export default function LogicTest({ level, difficultyProfile, onFinish, onExit }
     const timer = window.setInterval(() => {
       const nextElapsed = performance.now() - startedAt;
       setElapsed(nextElapsed);
-      if (nextElapsed >= timeLimit) {
+      if (nextElapsed >= timeLimit && !roundResolvedRef.current) {
+        roundResolvedRef.current = true;
         window.clearInterval(timer);
         setHistory((current) => current.concat({
           round, type: question.type, label: question.label, question: question.question,
@@ -45,7 +48,8 @@ export default function LogicTest({ level, difficultyProfile, onFinish, onExit }
   }, [phase, question, round, startedAt, timeLimit]);
 
   const submitAnswer = (option) => {
-    if (phase !== PHASES.QUESTION) return;
+    if (phase !== PHASES.QUESTION || roundResolvedRef.current) return;
+    roundResolvedRef.current = true;
     const solveTime = Math.min(timeLimit, Math.max(1, Math.round(performance.now() - startedAt)));
     const correct = option === question.correct;
     setElapsed(solveTime);
@@ -113,7 +117,7 @@ export default function LogicTest({ level, difficultyProfile, onFinish, onExit }
             <div className={'logic-feedback ' + (selected === question.correct ? 'is-correct' : 'is-wrong')}>
               <div><strong>{selected === question.correct ? 'Correct.' : selected === 'TIME' ? 'Time.' : 'Not this time.'}</strong><span>{selected === question.correct ? Math.round(elapsed) + ' ms' : 'Answer: ' + question.correct}</span></div>
               <p>{question.explanation}</p>
-              <button className="primary-button" onClick={continueRound}><span>{round >= GAME_CONFIG.totalLogicRounds ? 'See brain report' : 'Next problem'}</span><span className="button-arrow">→</span></button>
+              <button className="primary-button" onClick={continueRound}><span>{round >= GAME_CONFIG.totalLogicRounds ? 'See logic result' : 'Next problem'}</span><span className="button-arrow">→</span></button>
             </div>
           )}
         </div>

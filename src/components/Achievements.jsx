@@ -163,8 +163,9 @@ export default function Achievements({ player, onPlay, onHome, onReport }) {
           </div>
         </section>
 
-        <section className="achievement-grid">
-          {visibleAchievements.map((achievement) => {
+        {visibleAchievements.length > 0 ? (
+          <section className="achievement-grid">
+            {visibleAchievements.map((achievement) => {
             const unlocked = isAchievementUnlocked(player, achievement.id);
             const progress = Math.min(
               achievement.target,
@@ -206,8 +207,15 @@ export default function Achievements({ player, onPlay, onHome, onReport }) {
                 </div>
               </article>
             );
-          })}
-        </section>
+            })}
+          </section>
+        ) : (
+          <div className="achievement-empty-state">
+            <span>◌</span>
+            <h3>No milestones in this filter.</h3>
+            <p>Switch the filter to see the rest of your achievement collection.</p>
+          </div>
+        )}
 
         {recentUnlocked.length > 0 && (
           <section className="achievement-recents">

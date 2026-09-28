@@ -31,6 +31,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
   const timerRef = useRef(null);
   const mountedRef = useRef(true);
   const finishedRef = useRef(false);
+  const roundResolvedRef = useRef(false);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -56,6 +57,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
     setSelected([]);
     setAttempt([]);
     setRoundCorrect(null);
+    roundResolvedRef.current = false;
     setPhase(PHASES.MEMORIZE);
 
     timerRef.current = window.setTimeout(() => {
@@ -76,7 +78,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
   };
 
   const handleSymbolClick = (symbol) => {
-    if (phase !== PHASES.RECALL) return;
+    if (phase !== PHASES.RECALL || roundResolvedRef.current) return;
 
     const position = selected.length;
     const expected = question.sequence[position];
@@ -84,6 +86,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
 
     if (symbol !== expected) {
       clearTimer();
+      roundResolvedRef.current = true;
       setAttempt(nextAttempt);
       setRoundCorrect(false);
       setPhase(PHASES.RESULT);
@@ -94,6 +97,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
 
     if (nextAttempt.length === question.sequence.length) {
       clearTimer();
+      roundResolvedRef.current = true;
       setAttempt(nextAttempt);
       setScore((value) => value + 1);
       setRoundCorrect(true);
@@ -346,7 +350,7 @@ export default function MemoryTest({ level, difficultyProfile, onFinish, onExit 
           <button className="primary-button game-next" onClick={continueRound}>
             <span>
               {round >= GAME_CONFIG.totalMemoryRounds
-                ? 'See memory report'
+                ? 'See memory result'
                 : 'Next round'}
             </span>
             <span className="button-arrow">→</span>

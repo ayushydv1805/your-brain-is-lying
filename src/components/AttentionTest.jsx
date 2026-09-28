@@ -29,6 +29,7 @@ export default function AttentionTest({ level, difficultyProfile, onFinish, onEx
   const searchStartedAtRef = useRef(0);
   const mountedRef = useRef(true);
   const finishedRef = useRef(false);
+  const roundResolvedRef = useRef(false);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -55,13 +56,15 @@ export default function AttentionTest({ level, difficultyProfile, onFinish, onEx
     setRoundCorrect(null);
     setTimedOut(false);
     setLastTime(null);
+    roundResolvedRef.current = false;
     setPhase(PHASES.SEARCH);
 
     searchStartedAtRef.current = performance.now();
 
     timerRef.current = window.setTimeout(() => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || roundResolvedRef.current) return;
 
+      roundResolvedRef.current = true;
       clearTimer();
       setTimedOut(true);
       setRoundCorrect(false);
@@ -84,7 +87,8 @@ export default function AttentionTest({ level, difficultyProfile, onFinish, onEx
   };
 
   const handleCellClick = (value) => {
-    if (phase !== PHASES.SEARCH) return;
+    if (phase !== PHASES.SEARCH || roundResolvedRef.current) return;
+    roundResolvedRef.current = true;
 
     const elapsed = Math.max(
       1,
@@ -320,7 +324,7 @@ export default function AttentionTest({ level, difficultyProfile, onFinish, onEx
           <button className="primary-button game-next" onClick={continueRound}>
             <span>
               {round >= GAME_CONFIG.totalAttentionRounds
-                ? 'See attention report'
+                ? 'See attention result'
                 : 'Next round'}
             </span>
             <span className="button-arrow">→</span>

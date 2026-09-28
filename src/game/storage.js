@@ -35,7 +35,8 @@ const DEFAULT_PLAYER = {
 };
 
 function safeNumber(value, fallback = 0) {
-  return Number.isFinite(value) ? value : fallback;
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : fallback;
 }
 
 function safeMastery(value) {
@@ -140,9 +141,9 @@ export function loadPlayer() {
       xp: safeNumber(parsed.xp),
       level: safeNumber(parsed.level, 1),
       bestReaction:
-        parsed.bestReaction === null || Number.isFinite(parsed.bestReaction)
-          ? parsed.bestReaction
-          : null,
+        parsed.bestReaction === null || parsed.bestReaction === undefined
+          ? null
+          : safeNumber(parsed.bestReaction, null),
       bestMemoryScore: safeNumber(parsed.bestMemoryScore),
       bestAttentionScore: safeNumber(parsed.bestAttentionScore),
       bestLogicScore: safeNumber(parsed.bestLogicScore),
@@ -235,5 +236,9 @@ export function appendRunHistory(player, result) {
 }
 
 export function savePlayer(player) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
+  } catch {
+    // Storage can be unavailable in private/restricted browser contexts.
+  }
 }
