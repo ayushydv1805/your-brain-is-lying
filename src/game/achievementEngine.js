@@ -11,6 +11,9 @@ export const ACHIEVEMENTS = [
   { id: 'logic-master', icon: '🧩', title: 'Logic Locked', description: 'Complete a perfect five-round logic run.', requirement: 'Logic best 5 / 5', kind: 'logic', target: 1 },
   { id: 'impulse-control', icon: '🎯', title: 'Impulse Control', description: 'Reach at least 95% control accuracy in an impulse run.', requirement: 'Impulse best ≥ 95%', kind: 'impulse', target: 1 },
   { id: 'balanced-brain', icon: '◈', title: 'Balanced Brain', description: 'Bring the average mastery across all five skills to 80%.', requirement: '80% average mastery', kind: 'mastery', target: 80 },
+  { id: 'daily-signal', icon: '☀️', title: 'Daily Signal', description: 'Complete your first assigned daily brain challenge.', requirement: '1 daily challenge completed', kind: 'daily', target: 1 },
+  { id: 'weekly-signal', icon: '🗓️', title: 'Weekly Signal', description: 'Complete seven assigned daily brain challenges.', requirement: '7 daily challenges completed', kind: 'daily', target: 7 },
+  { id: 'daily-veteran', icon: '🌟', title: 'Daily Veteran', description: 'Complete thirty assigned daily brain challenges.', requirement: '30 daily challenges completed', kind: 'daily', target: 30 },
 ];
 
 function safeNumber(value, fallback = 0) {
@@ -70,6 +73,8 @@ export function getAchievementProgress(player, achievement) {
       return safeNumber(player.bestImpulseAccuracy) >= 95 ? 1 : 0;
     case 'mastery':
       return Math.min(achievement.target, averageMastery(player));
+    case 'daily':
+      return Math.min(achievement.target, safeNumber(player.completedDailyChallenges));
     default:
       return 0;
   }

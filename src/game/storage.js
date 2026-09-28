@@ -24,6 +24,8 @@ const DEFAULT_PLAYER = {
   activityDates: [],
   currentStreak: 0,
   bestStreak: 0,
+  dailyChallengeDates: [],
+  completedDailyChallenges: 0,
   unlockedAchievements: [],
   skillMastery: {
     reaction: 0,
@@ -134,6 +136,7 @@ export function loadPlayer() {
 
     const activityDates = normalizeDateKeys(recoveredActivityDates);
     const streak = getStreakStats(activityDates);
+    const dailyChallengeDates = normalizeDateKeys(parsed.dailyChallengeDates);
 
     const basePlayer = {
       ...DEFAULT_PLAYER,
@@ -157,6 +160,11 @@ export function loadPlayer() {
       activityDates,
       currentStreak: streak.currentStreak,
       bestStreak: Math.max(safeNumber(parsed.bestStreak), streak.bestStreak),
+      dailyChallengeDates,
+      completedDailyChallenges: Math.max(
+        safeNumber(parsed.completedDailyChallenges),
+        dailyChallengeDates.length,
+      ),
       unlockedAchievements: normalizeUnlocked(parsed.unlockedAchievements),
       skillMastery: {
         reaction: safeMastery(parsedMastery.reaction),

@@ -130,3 +130,11 @@ npm run preview
 - Fourteen-day activity strip showing daily test consistency
 - Achievement unlock celebration after milestones are reached
 - Existing player profiles migrate safely and recover activity from recent run history
+
+### Phase 10 — Daily Brain Challenge
+- Deterministic daily mission rotating across Reaction, Memory, Attention, Logic, and Impulse
+- One-time +50 XP daily bonus for completing the assigned skill each local calendar day
+- Dedicated daily challenge dashboard with today&apos;s mission, completion state, and seven-day history
+- Daily challenge entry points on the landing page and responsive navigation
+- Three daily-completion achievements integrated into the existing achievement system
+- Backward-compatible localStorage migration for existing players

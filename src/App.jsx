@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css';
+import './daily.css';
 import ReactionTest from './components/ReactionTest';
 import MemoryTest from './components/MemoryTest';
 import AttentionTest from './components/AttentionTest';
@@ -12,11 +13,17 @@ import ImpulseTest from './components/ImpulseTest';
 import ImpulseResult from './components/ImpulseResult';
 import BrainReport from './components/BrainReport';
 import Achievements from './components/Achievements';
+import DailyChallenge from './components/DailyChallenge';
 import AchievementCelebration from './components/AchievementCelebration';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
 import { getAchievementById } from './game/achievementEngine';
 import { appendRunHistory, loadPlayer, savePlayer } from './game/storage';
+import {
+  applyDailyChallengeBonus,
+  getDailyChallenge,
+  isDailyChallengeCompleted,
+} from './game/dailyChallenge';
 import {
   getDifficultyProfile,
   getDifficultyTier,
@@ -111,9 +118,24 @@ function App() {
     averageMastery,
     'overall',
   );
+  const dailyChallenge = getDailyChallenge();
+  const dailyCompleted = isDailyChallengeCompleted(player);
+
+  const openDaily = () => {
+    setResult(null);
+    setLevelUp(null);
+    setAchievementQueue([]);
+    setView('daily');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const finalizeRun = (current, nextPlayer, runResult) => {
-    const savedPlayer = appendRunHistory(nextPlayer, runResult);
+    const historyPlayer = appendRunHistory(nextPlayer, runResult);
+    const { player: dailyPlayer } = applyDailyChallengeBonus(historyPlayer, runResult);
+    const savedPlayer = {
+      ...dailyPlayer,
+      level: getLevelFromXp(dailyPlayer.xp),
+    };
     const previousUnlocked = new Set(current.unlockedAchievements || []);
     const newlyUnlocked = (savedPlayer.unlockedAchievements || [])
       .filter((id) => !previousUnlocked.has(id))
@@ -319,6 +341,24 @@ function App() {
         onHome={goHome}
         onReport={() => {
           setView('report');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
+  if (view === 'daily') {
+    return (
+      <DailyChallenge
+        player={player}
+        onPlay={startTest}
+        onHome={goHome}
+        onReport={() => {
+          setView('report');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onAchievements={() => {
+          setView('achievements');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
@@ -535,6 +575,7 @@ function App() {
           <button onClick={() => scrollTo('tests')}>Tests</button>
           <button onClick={() => scrollTo('levels')}>Levels</button>
           <button onClick={() => scrollTo('about')}>How it works</button>
+          <button onClick={openDaily}>Daily</button>
           <button onClick={() => setView('report')}>Report</button>
           <button onClick={() => setView('achievements')}>Achievements</button>
         </nav>
@@ -582,11 +623,13 @@ function App() {
               <i />
               <span><b>∞</b> combinations</span>
               <i />
+              <button className="hero-report-link" onClick={openDaily}>Today&apos;s daily ↗</button>
               <button className="hero-report-link" onClick={() => setView('report')}>View report ↗</button>
             </div>
 
             <div className="mobile-quick-nav" aria-label="Quick navigation">
               <button onClick={() => scrollTo('tests')}>Tests</button>
+              <button onClick={openDaily}>Daily</button>
               <button onClick={() => setView('report')}>Report</button>
               <button onClick={() => setView('achievements')}>Achievements</button>
             </div>
@@ -667,9 +710,35 @@ function App() {
               <span><b>07</b> Impulse control ✓</span>
               <span><b>08</b> Brain report ✓</span>
               <span><b>09</b> Achievements &amp; streaks ✓</span>
+              <span><b>10</b> Daily brain challenge ✓</span>
             </div>
           </section>
         )}
+
+        <section className="daily-teaser">
+          <div className="daily-teaser-copy">
+            <span className="section-kicker">PHASE 10 · DAILY CHALLENGE</span>
+            <h2>One challenge. <span>Every day.</span></h2>
+            <p>
+              Today&apos;s mission rotates by local calendar day. Finish the assigned skill once
+              before the day ends and earn <strong>+{dailyChallenge.bonusXp} XP</strong> on top of the normal run reward.
+            </p>
+          </div>
+          <div className="daily-teaser-card">
+            <div className="daily-teaser-top">
+              <span>{dailyChallenge.icon}</span>
+              <span className={dailyCompleted ? 'daily-status is-done' : 'daily-status'}>
+                {dailyCompleted ? 'COMPLETED TODAY' : 'READY TODAY'}
+              </span>
+            </div>
+            <strong>{dailyChallenge.label}</strong>
+            <small>{dailyChallenge.title}</small>
+            <button className="primary-button" onClick={openDaily}>
+              <span>{dailyCompleted ? 'View today&apos;s challenge' : 'Open daily challenge'}</span>
+              <span className="button-arrow">→</span>
+            </button>
+          </div>
+        </section>
 
         <section className="report-teaser-section">
           <div className="report-teaser-copy">
@@ -788,27 +857,27 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 9 · ACHIEVEMENTS &amp; STREAKS
+                PHASE 10 · DAILY BRAIN CHALLENGE
               </span>
 
               <h2>
-                Make progress <span>visible.</span>
+                Make consistency <span>playable.</span>
               </h2>
 
               <p>
-                Achievements now turn milestones into visible progress, while daily
-                activity creates a persistent streak. Every completed test updates
-                both systems from the same local player profile.
+                A deterministic daily mission rotates across all five cognitive skills.
+                Complete the assigned skill once per local calendar day to claim bonus XP,
+                while your existing streak and achievement systems continue unchanged.
               </p>
 
               <div className="about-actions">
-                <button className="primary-button" onClick={() => setView('achievements')}>
-                  <span>View achievements</span>
+                <button className="primary-button" onClick={openDaily}>
+                  <span>Open today&apos;s challenge</span>
                   <span className="button-arrow">→</span>
                 </button>
 
-                <button className="ghost-button" onClick={() => setView('report')}>
-                  Brain report
+                <button className="ghost-button" onClick={() => setView('achievements')}>
+                  Achievements
                 </button>
               </div>
             </div>
@@ -825,6 +894,10 @@ function App() {
               <div>
                 <strong>{player.bestStreak || 0}</strong>
                 <span>best streak</span>
+              </div>
+              <div>
+                <strong>{player.completedDailyChallenges || 0}</strong>
+                <span>daily challenges completed</span>
               </div>
               <div>
                 <strong>{player.level}</strong>
@@ -885,7 +958,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 9 · Achievements &amp; Streaks</span>
+        <span>Phase 10 · Daily Brain Challenge</span>
       </footer>
 
       {levelUp && (
