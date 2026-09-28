@@ -141,9 +141,9 @@ export function loadPlayer() {
       xp: safeNumber(parsed.xp),
       level: safeNumber(parsed.level, 1),
       bestReaction:
-        parsed.bestReaction === null || Number.isFinite(parsed.bestReaction)
-          ? parsed.bestReaction
-          : null,
+        parsed.bestReaction === null || parsed.bestReaction === undefined
+          ? null
+          : safeNumber(parsed.bestReaction, null),
       bestMemoryScore: safeNumber(parsed.bestMemoryScore),
       bestAttentionScore: safeNumber(parsed.bestAttentionScore),
       bestLogicScore: safeNumber(parsed.bestLogicScore),
