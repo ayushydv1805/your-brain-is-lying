@@ -1,3 +1,5 @@
+import { getEligibleAchievementIds } from './achievementEngine';
+
 const DAILY_SKILLS = [
   {
     key: 'reaction',
@@ -99,13 +101,24 @@ export function applyDailyChallengeBonus(player, result) {
     .sort((a, b) => b.localeCompare(a))
     .slice(0, 180);
 
+  const progressPlayer = {
+    ...player,
+    xp: Math.max(0, Number(player.xp) || 0) + DAILY_CHALLENGE_BONUS_XP,
+    dailyChallengeDates: nextDates,
+    completedDailyChallenges:
+      Math.max(0, Number(player.completedDailyChallenges) || 0) + 1,
+  };
+  const eligible = getEligibleAchievementIds(progressPlayer);
+
   return {
     player: {
-      ...player,
-      xp: Math.max(0, Number(player.xp) || 0) + DAILY_CHALLENGE_BONUS_XP,
-      dailyChallengeDates: nextDates,
-      completedDailyChallenges:
-        Math.max(0, Number(player.completedDailyChallenges) || 0) + 1,
+      ...progressPlayer,
+      unlockedAchievements: [
+        ...new Set([
+          ...(player.unlockedAchievements || []),
+          ...eligible,
+        ]),
+      ],
     },
     bonusAwarded: DAILY_CHALLENGE_BONUS_XP,
   };

@@ -138,3 +138,11 @@ npm run preview
 - Daily challenge entry points on the landing page and responsive navigation
 - Three daily-completion achievements integrated into the existing achievement system
 - Backward-compatible localStorage migration for existing players
+
+### Phase 11 — Performance Lab
+- Dedicated performance dashboard built from the existing local run history and activity dates
+- Five skill cards showing mastery, best metric, and run count
+- Fourteen-day consistency strip and seven-day recent run mix
+- Recent-run timeline with relative timestamps and readable metrics
+- Descriptive progress insights without changing core game scoring
+- Fixed daily-achievement persistence when a daily milestone is earned

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import './daily.css';
+import './insights.css';
 import ReactionTest from './components/ReactionTest';
 import MemoryTest from './components/MemoryTest';
 import AttentionTest from './components/AttentionTest';
@@ -14,6 +15,7 @@ import ImpulseResult from './components/ImpulseResult';
 import BrainReport from './components/BrainReport';
 import Achievements from './components/Achievements';
 import DailyChallenge from './components/DailyChallenge';
+import Insights from './components/Insights';
 import AchievementCelebration from './components/AchievementCelebration';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
@@ -126,6 +128,14 @@ function App() {
     setLevelUp(null);
     setAchievementQueue([]);
     setView('daily');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openInsights = () => {
+    setResult(null);
+    setLevelUp(null);
+    setAchievementQueue([]);
+    setView('insights');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -365,6 +375,25 @@ function App() {
     );
   }
 
+  if (view === 'insights') {
+    return (
+      <Insights
+        player={player}
+        onPlay={startTest}
+        onHome={goHome}
+        onDaily={openDaily}
+        onReport={() => {
+          setView('report');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onAchievements={() => {
+          setView('achievements');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
   if (view === 'reaction') {
     return (
       <div className="app-shell game-shell">
@@ -576,6 +605,7 @@ function App() {
           <button onClick={() => scrollTo('levels')}>Levels</button>
           <button onClick={() => scrollTo('about')}>How it works</button>
           <button onClick={openDaily}>Daily</button>
+          <button onClick={openInsights}>Insights</button>
           <button onClick={() => setView('report')}>Report</button>
           <button onClick={() => setView('achievements')}>Achievements</button>
         </nav>
@@ -624,12 +654,14 @@ function App() {
               <span><b>∞</b> combinations</span>
               <i />
               <button className="hero-report-link" onClick={openDaily}>Today&apos;s daily ↗</button>
+              <button className="hero-report-link" onClick={openInsights}>Performance ↗</button>
               <button className="hero-report-link" onClick={() => setView('report')}>View report ↗</button>
             </div>
 
             <div className="mobile-quick-nav" aria-label="Quick navigation">
               <button onClick={() => scrollTo('tests')}>Tests</button>
               <button onClick={openDaily}>Daily</button>
+              <button onClick={openInsights}>Insights</button>
               <button onClick={() => setView('report')}>Report</button>
               <button onClick={() => setView('achievements')}>Achievements</button>
             </div>
@@ -711,6 +743,7 @@ function App() {
               <span><b>08</b> Brain report ✓</span>
               <span><b>09</b> Achievements &amp; streaks ✓</span>
               <span><b>10</b> Daily brain challenge ✓</span>
+              <span><b>11</b> Performance lab ✓</span>
             </div>
           </section>
         )}
@@ -738,6 +771,24 @@ function App() {
               <span className="button-arrow">→</span>
             </button>
           </div>
+        </section>
+
+        <section className="insights-teaser">
+          <div className="insights-teaser-copy">
+            <span className="section-kicker">PHASE 11 · PERFORMANCE LAB</span>
+            <h2>See the pattern behind <span>your runs.</span></h2>
+            <p>Turn saved runs into a clean timeline of skill mix, active days, mastery, and recent performance.</p>
+          </div>
+          <div className="insights-mini-grid">
+            <div><strong>{player.runHistory?.length || 0}</strong><span>saved runs</span></div>
+            <div><strong>{player.activityDates?.length || 0}</strong><span>active days</span></div>
+            <div><strong>{player.currentStreak || 0}</strong><span>day streak</span></div>
+            <div><strong>{player.level}</strong><span>level</span></div>
+          </div>
+          <button className="primary-button" onClick={openInsights}>
+            <span>Open performance lab</span>
+            <span className="button-arrow">→</span>
+          </button>
         </section>
 
         <section className="report-teaser-section">
@@ -857,7 +908,7 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 10 · DAILY BRAIN CHALLENGE
+                PHASE 11 · PERFORMANCE LAB
               </span>
 
               <h2>
@@ -865,19 +916,19 @@ function App() {
               </h2>
 
               <p>
-                A deterministic daily mission rotates across all five cognitive skills.
-                Complete the assigned skill once per local calendar day to claim bonus XP,
-                while your existing streak and achievement systems continue unchanged.
+                Your saved runs now form a lightweight performance lab. Review recent activity,
+                skill balance, raw metrics, mastery, and consistency without changing the core
+                challenges or scoring model.
               </p>
 
               <div className="about-actions">
                 <button className="primary-button" onClick={openDaily}>
-                  <span>Open today&apos;s challenge</span>
+                  <span>Open performance lab</span>
                   <span className="button-arrow">→</span>
                 </button>
 
-                <button className="ghost-button" onClick={() => setView('achievements')}>
-                  Achievements
+                <button className="ghost-button" onClick={openDaily}>
+                  Daily challenge
                 </button>
               </div>
             </div>
@@ -958,7 +1009,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 10 · Daily Brain Challenge</span>
+        <span>Phase 11 · Performance Lab</span>
       </footer>
 
       {levelUp && (
