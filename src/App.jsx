@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import './daily.css';
 import './insights.css';
+import './passport.css';
 import ReactionTest from './components/ReactionTest';
 import MemoryTest from './components/MemoryTest';
 import AttentionTest from './components/AttentionTest';
@@ -16,10 +17,12 @@ import BrainReport from './components/BrainReport';
 import Achievements from './components/Achievements';
 import DailyChallenge from './components/DailyChallenge';
 import Insights from './components/Insights';
+import BrainPassport from './components/BrainPassport';
 import AchievementCelebration from './components/AchievementCelebration';
 import LevelUpCelebration from './components/LevelUpCelebration';
 import { getLevelFromXp } from './game/gameConfig';
 import { getAchievementById } from './game/achievementEngine';
+import { getSharedPassportFromLocation } from './game/passport';
 import { appendRunHistory, loadPlayer, savePlayer } from './game/storage';
 import {
   applyDailyChallengeBonus,
@@ -80,7 +83,8 @@ const levels = [
 ];
 
 function App() {
-  const [view, setView] = useState('home');
+  const [sharedPassport, setSharedPassport] = useState(() => getSharedPassportFromLocation());
+  const [view, setView] = useState(() => (getSharedPassportFromLocation() ? 'passport' : 'home'));
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [player, setPlayer] = useState(loadPlayer);
   const [result, setResult] = useState(null);
@@ -135,7 +139,21 @@ function App() {
     setResult(null);
     setLevelUp(null);
     setAchievementQueue([]);
+    setSharedPassport(null);
     setView('insights');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openPassport = () => {
+    setResult(null);
+    setLevelUp(null);
+    setAchievementQueue([]);
+    setSharedPassport(null);
+    setView('passport');
+    const url = new URL(window.location.href);
+    url.searchParams.delete('view');
+    url.searchParams.delete('passport');
+    window.history.replaceState({}, '', url.toString());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -325,7 +343,12 @@ function App() {
     setResult(null);
     setLevelUp(null);
     setAchievementQueue([]);
+    setSharedPassport(null);
     setPlayer(loadPlayer());
+    const url = new URL(window.location.href);
+    url.searchParams.delete('view');
+    url.searchParams.delete('passport');
+    window.history.replaceState({}, '', url.toString());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -387,6 +410,30 @@ function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onAchievements={() => {
+          setView('achievements');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
+  if (view === 'passport') {
+    return (
+      <BrainPassport
+        player={player}
+        sharedPassport={sharedPassport}
+        onPlay={startTest}
+        onHome={goHome}
+        onMine={openPassport}
+        onDaily={openDaily}
+        onInsights={openInsights}
+        onReport={() => {
+          setSharedPassport(null);
+          setView('report');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onAchievements={() => {
+          setSharedPassport(null);
           setView('achievements');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
@@ -606,6 +653,7 @@ function App() {
           <button onClick={() => scrollTo('about')}>How it works</button>
           <button onClick={openDaily}>Daily</button>
           <button onClick={openInsights}>Insights</button>
+          <button onClick={openPassport}>Passport</button>
           <button onClick={() => setView('report')}>Report</button>
           <button onClick={() => setView('achievements')}>Achievements</button>
         </nav>
@@ -655,6 +703,7 @@ function App() {
               <i />
               <button className="hero-report-link" onClick={openDaily}>Today&apos;s daily ↗</button>
               <button className="hero-report-link" onClick={openInsights}>Performance ↗</button>
+              <button className="hero-report-link" onClick={openPassport}>Passport ↗</button>
               <button className="hero-report-link" onClick={() => setView('report')}>View report ↗</button>
             </div>
 
@@ -662,6 +711,7 @@ function App() {
               <button onClick={() => scrollTo('tests')}>Tests</button>
               <button onClick={openDaily}>Daily</button>
               <button onClick={openInsights}>Insights</button>
+              <button onClick={openPassport}>Passport</button>
               <button onClick={() => setView('report')}>Report</button>
               <button onClick={() => setView('achievements')}>Achievements</button>
             </div>
@@ -744,6 +794,7 @@ function App() {
               <span><b>09</b> Achievements &amp; streaks ✓</span>
               <span><b>10</b> Daily brain challenge ✓</span>
               <span><b>11</b> Performance lab ✓</span>
+              <span><b>12</b> Brain Passport ✓</span>
             </div>
           </section>
         )}
@@ -787,6 +838,24 @@ function App() {
           </div>
           <button className="primary-button" onClick={openInsights}>
             <span>Open performance lab</span>
+            <span className="button-arrow">→</span>
+          </button>
+        </section>
+
+        <section className="passport-teaser">
+          <div>
+            <span className="section-kicker">PHASE 12 · BRAIN PASSPORT</span>
+            <h2>Package your progress. <span>Take it with you.</span></h2>
+            <p>Create a read-only share link or export a clean SVG card from the progress already saved on this browser.</p>
+          </div>
+          <div className="passport-mini-grid">
+            <div><strong>{averageMastery}%</strong><span>avg mastery</span></div>
+            <div><strong>{player.currentStreak || 0}</strong><span>day streak</span></div>
+            <div><strong>{player.level}</strong><span>level</span></div>
+            <div><strong>{player.unlockedAchievements?.length || 0}</strong><span>achievements</span></div>
+          </div>
+          <button className="primary-button" onClick={openPassport}>
+            <span>Open brain passport</span>
             <span className="button-arrow">→</span>
           </button>
         </section>
@@ -908,27 +977,27 @@ function App() {
           <div className="about-panel">
             <div className="about-copy">
               <span className="section-kicker">
-                PHASE 11 · PERFORMANCE LAB
+                PHASE 12 · BRAIN PASSPORT
               </span>
 
               <h2>
-                Make consistency <span>playable.</span>
+                Make progress <span>portable.</span>
               </h2>
 
               <p>
-                Your saved runs now form a lightweight performance lab. Review recent activity,
-                skill balance, raw metrics, mastery, and consistency without changing the core
-                challenges or scoring model.
+                Package the progress already earned on this browser into a clean snapshot.
+                Share it as a read-only link or export a standalone SVG card without uploading
+                your account profile to a backend.
               </p>
 
               <div className="about-actions">
-                <button className="primary-button" onClick={openDaily}>
-                  <span>Open performance lab</span>
+                <button className="primary-button" onClick={openPassport}>
+                  <span>Open brain passport</span>
                   <span className="button-arrow">→</span>
                 </button>
 
-                <button className="ghost-button" onClick={openDaily}>
-                  Daily challenge
+                <button className="ghost-button" onClick={openInsights}>
+                  Performance lab
                 </button>
               </div>
             </div>
@@ -1009,7 +1078,7 @@ function App() {
 
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
-        <span>Phase 11 · Performance Lab</span>
+        <span>Phase 12 · Brain Passport</span>
       </footer>
 
       {levelUp && (
