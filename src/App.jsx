@@ -95,7 +95,15 @@ function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const clearPassportQuery = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('view');
+    url.searchParams.delete('passport');
+    window.history.replaceState({}, '', url.toString());
+  };
+
   const startTest = (test) => {
+    clearPassportQuery();
     setResult(null);
     setLevelUp(null);
     setAchievementQueue([]);
@@ -128,6 +136,7 @@ function App() {
   const dailyCompleted = isDailyChallengeCompleted(player);
 
   const openDaily = () => {
+    clearPassportQuery();
     setResult(null);
     setLevelUp(null);
     setAchievementQueue([]);
@@ -136,6 +145,7 @@ function App() {
   };
 
   const openInsights = () => {
+    clearPassportQuery();
     setResult(null);
     setLevelUp(null);
     setAchievementQueue([]);
@@ -345,10 +355,7 @@ function App() {
     setAchievementQueue([]);
     setSharedPassport(null);
     setPlayer(loadPlayer());
-    const url = new URL(window.location.href);
-    url.searchParams.delete('view');
-    url.searchParams.delete('passport');
-    window.history.replaceState({}, '', url.toString());
+    clearPassportQuery();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -429,11 +436,13 @@ function App() {
         onInsights={openInsights}
         onReport={() => {
           setSharedPassport(null);
+          clearPassportQuery();
           setView('report');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onAchievements={() => {
           setSharedPassport(null);
+          clearPassportQuery();
           setView('achievements');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
