@@ -146,3 +146,12 @@ npm run preview
 - Recent-run timeline with relative timestamps and readable metrics
 - Descriptive progress insights without changing core game scoring
 - Fixed daily-achievement persistence when a daily milestone is earned
+
+### Phase 12 — Brain Passport
+- Portable progress snapshot across level, XP, streaks, achievements, and all five skill summaries
+- Read-only share links generated entirely in the browser with no account name included
+- Share URL contains only the selected progress snapshot; raw run history and test answers remain local
+- Standalone SVG passport card export for saving or posting progress elsewhere
+- Copyable text summary plus Web Share / clipboard support
+- Shared-passport view with a clear read-only state and a path back to the local player profile
+- Responsive landing-page teaser and navigation entry points for desktop and mobile
