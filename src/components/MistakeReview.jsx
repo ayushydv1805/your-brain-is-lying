@@ -1,5 +1,5 @@
 import { buildMistakeReview } from '../game/brainFeatures';
-import './phase-ab.css';
+import '../phase-ab.css';
 
 const SKILL_LABELS = { reaction: 'Reaction', memory: 'Memory', attention: 'Attention', logic: 'Logic', impulse: 'Impulse' };
 
