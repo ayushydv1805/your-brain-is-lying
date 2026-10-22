@@ -176,3 +176,24 @@ The GitHub Actions workflow runs the production Vite build for branch pushes and
 npm install
 npm run build
 ~~~
+
+
+## Phases A and B — Quality, coaching, and practice planning
+
+The latest update adds:
+- A reusable round-by-round mistake review after all five game modes.
+- A rule-based Brain Coach that recommends practice using local mastery and recent completed runs. It does not send player data to an external AI service.
+- Personalized 5-, 10-, and 15-minute training plans.
+- A weekly report comparing the latest seven days with the preceding seven days, daily activity, XP totals, skill mix, and JSON export.
+- Locally saved comfort preferences: reduced motion, higher contrast, larger text, and simplified decoration.
+- Player-save schema metadata, numeric metrics in run history, save verification, storage status, and a timestamped recovery copy when saved JSON is corrupt.
+- Automated tests using Node's built-in test runner. The CI workflow runs tests before the Vite production build.
+
+Run checks locally:
+
+~~~bash
+npm test
+npm run build
+~~~
+
+The Brain Coach uses transparent, deterministic rules on saved game results; it is not a remote generative-AI feature and is not intended for medical, diagnostic, or intelligence assessment.

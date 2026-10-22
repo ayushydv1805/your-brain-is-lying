@@ -10,6 +10,7 @@ import {
   hasLocalAccounts,
   loginLocalAccount,
 } from '../game/accounts';
+import { validatePlayerRecord } from '../game/brainFeatures';
 
 function initialAccount() {
   try {
@@ -117,10 +118,7 @@ export default function AuthGate({ children }) {
         if (
           backup?.app !== 'Your Brain Is Lying' ||
           backup?.schemaVersion !== 1 ||
-          !backup.player ||
-          typeof backup.player !== 'object' ||
-          !Number.isFinite(Number(backup.player.xp)) ||
-          !Array.isArray(backup.player.runHistory)
+          !validatePlayerRecord(backup.player)
         ) {
           throw new Error('This file is not a valid Your Brain Is Lying backup.');
         }

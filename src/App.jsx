@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import './daily.css';
 import './insights.css';
@@ -20,6 +20,12 @@ import Insights from './components/Insights';
 import BrainPassport from './components/BrainPassport';
 import AchievementCelebration from './components/AchievementCelebration';
 import LevelUpCelebration from './components/LevelUpCelebration';
+import BrainCoach from './components/BrainCoach';
+import TrainingPlan from './components/TrainingPlan';
+import WeeklyReport from './components/WeeklyReport';
+import AppSettings from './components/AppSettings';
+import { applyPreferences, loadPreferences, savePreferences } from './game/preferences';
+import { getPlayerStorageStatus } from './game/storage';
 import { getLevelFromXp } from './game/gameConfig';
 import { getAchievementById } from './game/achievementEngine';
 import { getSharedPassportFromLocation } from './game/passport';
@@ -90,6 +96,16 @@ function App() {
   const [result, setResult] = useState(null);
   const [levelUp, setLevelUp] = useState(null);
   const [achievementQueue, setAchievementQueue] = useState([]);
+  const [preferences, setPreferences] = useState(loadPreferences);
+
+  useEffect(() => {
+    applyPreferences(preferences);
+  }, [preferences]);
+
+  const changePreferences = (nextPreferences) => {
+    const saved = savePreferences(nextPreferences);
+    setPreferences(saved.preferences);
+  };
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -116,6 +132,16 @@ function App() {
   const startAttention = () => startTest('attention');
   const startLogic = () => startTest('logic');
   const startImpulse = () => startTest('impulse');
+
+  const openPhaseView = (nextView) => {
+    clearPassportQuery();
+    setResult(null);
+    setLevelUp(null);
+    setAchievementQueue([]);
+    setSharedPassport(null);
+    setView(nextView);
+    window.scrollTo({ top: 0, behavior: preferences.reducedMotion ? 'auto' : 'smooth' });
+  };
 
   const averageMastery = Math.round(
     (
@@ -358,6 +384,22 @@ function App() {
     clearPassportQuery();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (view === 'coach') {
+    return <BrainCoach player={player} onHome={goHome} onPlay={startTest} onPlan={() => openPhaseView('training-plan')} onWeekly={() => openPhaseView('weekly-report')} />;
+  }
+
+  if (view === 'training-plan') {
+    return <TrainingPlan player={player} onHome={goHome} onPlay={startTest} onWeekly={() => openPhaseView('weekly-report')} />;
+  }
+
+  if (view === 'weekly-report') {
+    return <WeeklyReport player={player} onHome={goHome} onPlan={() => openPhaseView('training-plan')} onPlay={startTest} />;
+  }
+
+  if (view === 'settings') {
+    return <AppSettings preferences={preferences} onChange={changePreferences} onHome={goHome} storageStatus={getPlayerStorageStatus()} />;
+  }
 
   if (view === 'report') {
     return (
@@ -714,6 +756,10 @@ function App() {
               <button className="hero-report-link" onClick={openInsights}>Performance ↗</button>
               <button className="hero-report-link" onClick={openPassport}>Passport ↗</button>
               <button className="hero-report-link" onClick={() => setView('report')}>View report ↗</button>
+              <button className="hero-report-link" onClick={() => openPhaseView('coach')}>Brain Coach ↗</button>
+              <button className="hero-report-link" onClick={() => openPhaseView('training-plan')}>Training Plan ↗</button>
+              <button className="hero-report-link" onClick={() => openPhaseView('weekly-report')}>Weekly Report ↗</button>
+              <button className="hero-report-link" onClick={() => openPhaseView('settings')}>Comfort Settings ↗</button>
             </div>
 
             <div className="mobile-quick-nav" aria-label="Quick navigation">
@@ -723,6 +769,10 @@ function App() {
               <button onClick={openPassport}>Passport</button>
               <button onClick={() => setView('report')}>Report</button>
               <button onClick={() => setView('achievements')}>Achievements</button>
+              <button onClick={() => openPhaseView('coach')}>Coach</button>
+              <button onClick={() => openPhaseView('training-plan')}>Plan</button>
+              <button onClick={() => openPhaseView('weekly-report')}>Weekly</button>
+              <button onClick={() => openPhaseView('settings')}>Settings</button>
             </div>
           </div>
 
@@ -882,6 +932,20 @@ function App() {
             <span>Open brain report</span>
             <span className="button-arrow">→</span>
           </button>
+        </section>
+
+        <section className="phase-ab-home">
+          <div className="phase-ab-home-copy">
+            <span className="section-kicker">PHASE A + B · TRAIN SMARTER</span>
+            <h2>Not just scores. <span>A plan for what comes next.</span></h2>
+            <p>Review misses, get practical coaching based on saved runs, plan a short session and recap the last seven days. Adjust the experience for comfort and readability.</p>
+          </div>
+          <div className="phase-ab-home-actions">
+            <button className="primary-button" onClick={() => openPhaseView('coach')}><span>Open Brain Coach</span><span className="button-arrow">→</span></button>
+            <button className="ghost-button" onClick={() => openPhaseView('training-plan')}>Build training plan</button>
+            <button className="ghost-button" onClick={() => openPhaseView('weekly-report')}>View weekly report</button>
+            <button className="ghost-button" onClick={() => openPhaseView('settings')}>Accessibility settings</button>
+          </div>
         </section>
 
         <section className="section tests-section" id="tests">
