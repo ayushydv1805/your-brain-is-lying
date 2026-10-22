@@ -1,0 +1,37 @@
+name: Generate pinned dependency lockfile
+
+on:
+  push:
+    branches:
+      - "feature/phases-c-d-cloud-social"
+    paths:
+      - ".github/workflows/generate-lockfile.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/phases-c-d-cloud-social
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate lockfile
+        run: npm install --package-lock-only
+      - name: Commit lockfile if it changed
+        run: |
+          if [ -n "$(git status --porcelain package-lock.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "Add reproducible npm dependency lockfile"
+            git push origin feature/phases-c-d-cloud-social
+          else
+            echo "package-lock.json is already up to date"
+          fi
