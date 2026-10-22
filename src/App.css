@@ -4510,3 +4510,26 @@ footer {
     opacity: 1;
   }
 }
+
+/* Phase A + B home entry points */
+.phase-ab-home {
+  width: min(1240px, calc(100% - 48px));
+  margin: 0 auto 90px;
+  padding: clamp(22px, 4vw, 38px);
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 270px);
+  gap: 28px;
+  align-items: center;
+  border: 1px solid rgba(119,116,255,.18);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(119,116,255,.07), rgba(89,215,194,.025));
+}
+.phase-ab-home-copy h2 { max-width: 720px; margin: 12px 0; font: 600 clamp(30px,4vw,48px)/1.02 'Space Grotesk',sans-serif; letter-spacing: -.05em; }
+.phase-ab-home-copy h2 span { color: #7774ff; }
+.phase-ab-home-copy p { max-width: 700px; color: #838ba4; font-size: 11px; line-height: 1.8; }
+.phase-ab-home-actions { display: grid; gap: 8px; }
+.phase-ab-home-actions button { width: 100%; justify-content: space-between; }
+@media(max-width:760px) {
+  .phase-ab-home { width: min(100% - 28px, 1240px); margin-bottom: 45px; grid-template-columns: 1fr; gap: 12px; padding: 20px; }
+  .phase-ab-home-copy h2 { font-size: 32px; }
+}
