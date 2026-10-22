@@ -1,5 +1,5 @@
 import { getWeeklySummary } from '../game/brainFeatures';
-import './phase-ab.css';
+import '../phase-ab.css';
 
 function formatRange(startValue, endValue) {
   const start = new Date(startValue);
