@@ -1,4 +1,4 @@
-import { getEligibleAchievementIds } from './achievementEngine';
+import { getEligibleAchievementIds } from './achievementEngine.js';
 
 const STORAGE_KEY = 'your-brain-is-lying-player';
 const ACTIVE_PROFILE_KEY = 'your-brain-is-lying-active-profile';
