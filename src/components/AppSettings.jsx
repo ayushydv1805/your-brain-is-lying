@@ -1,4 +1,4 @@
-import './phase-ab.css';
+import '../phase-ab.css';
 
 export default function AppSettings({ preferences, onChange, onHome, storageStatus }) {
   const options = [
