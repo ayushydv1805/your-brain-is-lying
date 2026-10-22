@@ -244,8 +244,57 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
         {tab === 'challenges' && <>
           <section className="social-section">
             <div className="social-section-heading"><div><span className="social-kicker">HEAD TO HEAD</span><h2>Friendly <span>competition.</span></h2></div><p>Both players must run the same skill after the challenge is accepted. Results are normalized to a 0–100 practice score.</p></div>
-            {incomingChallenges.length > 0 && <div className="social-card-list"><h3>Incoming challenges</h3>{incomingChallenges.map((challenge) => {const challenger=byId(profiles,challenge.challenger_id);return <article className="social-challenge-card" key={challenge.id}><div className="social-challenge-top"><span className="social-person-avatar">{challenger.avatar_emoji || '🧠'}</span><div className="social-person-info"><strong>{challenger.display_name} challenged you</strong><small>@{challenger.handle} · {SKILLS.find((s)=>s.id===challenge.skill)?.label}</small></div><span className="social-pill is-pending">Waiting for you</span></div><p>Invite code: <strong>{challenge.invite_code}</strong> <button className="social-text-button" onClick={() => shareCode(challenge.invite_code)}>Copy</button></p><div className="social-actions"><button className="primary-button" disabled={busy} onClick={() => act(() => updateChallengeStatus(challenge.id,'accepted'),'Challenge accepted. Play a fresh run of '+challenge.skill+'.')}>Accept challenge →</button><button className="ghost-button" disabled={busy} onClick={() => act(() => updateChallengeStatus(challenge.id,'declined'),'Challenge declined.')}>Decline</button></div></article>;})}</div>}
-            {outgoingChallenges.length > 0 && <div className="social-card-list"><h3>Waiting for a friend</h3>{outgoingChallenges.map((challenge) => {const opponent=byId(profiles,challenge.opponent_id);return <article className="social-challenge-card" key={challenge.id}><div className="social-challenge-top"><span className="social-person-avatar">{opponent.avatar_emoji || '🧠'}</span><div className="social-person-info"><strong>Challenge for {opponent.display_name}</strong><small>{SKILLS.find((s)=>s.id===challenge.skill)?.label} · pending acceptance</small></div><span className="social-pill is-pending">Pending</span></div><p>Share code <strong>{challenge.invite_code}</strong> with your friend. Expires {new Date(challenge.expires_at).toLocaleDateString()}.</p><div className="social-actions"><button className="ghost-button" onClick={() => shareCode(challenge.invite_code)}>Copy code</button><button className="ghost-button" disabled={busy} onClick={() => act(() => updateChallengeStatus(challenge.id,'cancelled'),'Challenge cancelled.')}>Cancel challenge</button></div></article>;})}</div>}
+            {incomingChallenges.length > 0 && (
+              <div className="social-card-list">
+                <h3>Incoming challenges</h3>
+                {incomingChallenges.map((challenge) => {
+                  const challenger = byId(profiles, challenge.challenger_id);
+                  const skill = SKILLS.find((item) => item.id === challenge.skill);
+                  return (
+                    <article className="social-challenge-card" key={challenge.id}>
+                      <div className="social-challenge-top">
+                        <span className="social-person-avatar">{challenger.avatar_emoji || '🧠'}</span>
+                        <div className="social-person-info">
+                          <strong>{challenger.display_name} challenged you</strong>
+                          <small>@{challenger.handle} · {skill?.label}</small>
+                        </div>
+                        <span className="social-pill is-pending">Waiting for you</span>
+                      </div>
+                      <p>Challenge expires {new Date(challenge.expires_at).toLocaleDateString()}.</p>
+                      <div className="social-actions">
+                        <button className="primary-button" disabled={busy} onClick={() => act(() => updateChallengeStatus(challenge.id, 'accepted'), 'Challenge accepted. Play a fresh run of ' + challenge.skill + '.')}>Accept challenge →</button>
+                        <button className="ghost-button" disabled={busy} onClick={() => act(() => updateChallengeStatus(challenge.id, 'declined'), 'Challenge declined.')}>Decline</button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+            {outgoingChallenges.length > 0 && (
+              <div className="social-card-list">
+                <h3>Waiting for a friend</h3>
+                {outgoingChallenges.map((challenge) => {
+                  const opponent = byId(profiles, challenge.opponent_id);
+                  const skill = SKILLS.find((item) => item.id === challenge.skill);
+                  return (
+                    <article className="social-challenge-card" key={challenge.id}>
+                      <div className="social-challenge-top">
+                        <span className="social-person-avatar">{opponent.avatar_emoji || '🧠'}</span>
+                        <div className="social-person-info">
+                          <strong>Challenge for {opponent.display_name}</strong>
+                          <small>{skill?.label} · pending acceptance</small>
+                        </div>
+                        <span className="social-pill is-pending">Pending</span>
+                      </div>
+                      <p>The challenge will appear in your friend's Social Hub when they sign in. Expires {new Date(challenge.expires_at).toLocaleDateString()}.</p>
+                      <div className="social-actions">
+                        <button className="ghost-button" disabled={busy} onClick={() => act(() => updateChallengeStatus(challenge.id, 'cancelled'), 'Challenge cancelled.')}>Cancel challenge</button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
             {activeChallenges.length > 0 && <div className="social-card-list"><h3>Accepted challenges</h3>{activeChallenges.map((challenge) => {
               const opponentId = challenge.challenger_id === currentUser.id ? challenge.opponent_id : challenge.challenger_id;
               const opponent = byId(profiles, opponentId);
