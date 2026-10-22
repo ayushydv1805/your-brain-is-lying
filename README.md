@@ -209,7 +209,7 @@ A cloud user can also import an existing device-local profile or restore a JSON 
 
 - Search for players by their unique handle and send/accept/decline friend requests.
 - Send a friend a challenge for one of the five skills. The invited player accepts it; both players complete a fresh run and submit one comparable 0–100 score.
-- View each challenge's submitted scores, copy its invite code, and see the outcome after both submissions.
+- View each challenge's submitted scores and see the outcome after both submissions. Challenges appear in the invited friend's Social Hub after they sign in.
 - Enter skill-specific **weekly tournaments** or all-time leaderboards by manually publishing saved results.
 - Leaderboard sharing is opt-in and off by default. Public-facing views expose the chosen handle, avatar and submitted score—not email or private progress history.
 
