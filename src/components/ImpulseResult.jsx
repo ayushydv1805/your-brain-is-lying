@@ -1,5 +1,6 @@
 import { getLevelProgress } from '../game/gameConfig';
 import DifficultyBadge from './DifficultyBadge';
+import MistakeReview from './MistakeReview';
 
 export default function ImpulseResult({
   result,
@@ -14,6 +15,7 @@ export default function ImpulseResult({
 
   return (
     <section className="result-screen impulse-result-screen">
+      <MistakeReview result={result} />
       <div className="result-shell">
         <div className="result-kicker">
           <span className="pulse-dot" />
