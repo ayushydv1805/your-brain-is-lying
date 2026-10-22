@@ -173,19 +173,6 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
     'Challenge sent. Your friend can accept it from their Social Hub.',
   );
 
-  const shareCode = async (code) => {
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(code);
-        setNotice('Challenge code copied.');
-      } else {
-        setNotice('Challenge code: ' + code);
-      }
-    } catch {
-      setNotice('Challenge code: ' + code);
-    }
-  };
-
   const optIntoLeaderboard = async (enabled) => {
     setBusy(true); setError(''); setNotice('');
     try {
@@ -275,7 +262,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
                 {outcome && <p className="social-outcome">{outcome}</p>}
                 {!own && entries.length < 2 && !expired && <div className="social-submit-row"><p>{latest ? 'A matching run is ready to submit.' : 'Complete a new ' + challenge.skill + ' test, then come back here.'}</p><button className="primary-button" disabled={busy || !latest} onClick={() => act(() => submitChallengeScore(challenge.id,currentUser.id,latest,challenge.skill),'Challenge result submitted.')}>Submit latest result →</button></div>}
                 {expired && !own && <p className="social-note">This challenge has expired. Ask your friend to send a new one.</p>}
-                <button className="social-text-button" onClick={() => shareCode(challenge.invite_code)}>Copy challenge code</button>
+                
               </article>;
             })}</div>}
             {visibleChallenges.length === 0 && <div className="social-empty"><span>⚔️</span><h3>No challenges yet</h3><p>Add a friend, then send a skill challenge from the Friends tab.</p><button className="primary-button" onClick={() => setTab('friends')}>Find a friend →</button></div>}
