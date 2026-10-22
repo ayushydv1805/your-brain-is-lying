@@ -1,6 +1,17 @@
 import { getEligibleAchievementIds } from './achievementEngine';
 
 const STORAGE_KEY = 'your-brain-is-lying-player';
+const ACTIVE_PROFILE_KEY = 'your-brain-is-lying-active-profile';
+const MAX_RUN_HISTORY = 500;
+
+function getStorageKey() {
+  try {
+    const profileId = localStorage.getItem(ACTIVE_PROFILE_KEY);
+    return profileId ? STORAGE_KEY + ':' + profileId : STORAGE_KEY;
+  } catch {
+    return STORAGE_KEY;
+  }
+}
 
 const DEFAULT_PLAYER = {
   xp: 0,
@@ -118,7 +129,7 @@ function normalizeUnlocked(ids) {
 
 export function loadPlayer() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey());
     if (!raw) return { ...DEFAULT_PLAYER };
 
     const parsed = JSON.parse(raw);
@@ -126,7 +137,7 @@ export function loadPlayer() {
     const parsedHistory = Array.isArray(parsed.runHistory)
       ? parsed.runHistory
         .filter((entry) => entry && entry.type && entry.at)
-        .slice(0, 25)
+        .slice(0, MAX_RUN_HISTORY)
       : [];
 
     const recoveredActivityDates =
@@ -217,7 +228,7 @@ export function appendRunHistory(player, result) {
     at,
   };
 
-  const nextHistory = [entry, ...(player.runHistory || [])].slice(0, 25);
+  const nextHistory = [entry, ...(player.runHistory || [])].slice(0, MAX_RUN_HISTORY);
   const activityDate = dateKeyFromTimestamp(at);
   const activityDates = normalizeDateKeys([
     ...(player.activityDates || []),
@@ -245,7 +256,7 @@ export function appendRunHistory(player, result) {
 
 export function savePlayer(player) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
+    localStorage.setItem(getStorageKey(), JSON.stringify(player));
   } catch {
     // Storage can be unavailable in private/restricted browser contexts.
   }
