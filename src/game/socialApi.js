@@ -201,3 +201,15 @@ export async function publishLeaderboardResult(userId, profile, run, skill) {
   if (error) throw error;
   return data;
 }
+
+
+export async function loadPublicProfiles(userIds) {
+  const ids = [...new Set((userIds || []).filter((id) => typeof id === 'string' && id))];
+  if (!ids.length) return [];
+  const client = requireClient();
+  const { data, error } = await client.from('brain_profiles')
+    .select('user_id,handle,display_name,avatar_emoji,leaderboard_opt_in')
+    .in('user_id', ids);
+  if (error) throw error;
+  return data || [];
+}
