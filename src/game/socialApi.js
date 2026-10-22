@@ -168,12 +168,19 @@ export async function submitChallengeScore(challengeId, userId, run, skill) {
   return data;
 }
 
-export async function loadLeaderboard(skill) {
+export async function loadLeaderboard(skill, period = 'all-time') {
   if (!['reaction', 'memory', 'attention', 'logic', 'impulse'].includes(skill)) throw new Error('Choose a valid leaderboard.');
   const client = requireClient();
-  const { data, error } = await client.from('brain_leaderboard_entries')
+  let query = client.from('brain_leaderboard_entries')
     .select('id,user_id,skill,score,raw_metric,created_at')
-    .eq('skill', skill).order('score', { ascending: false }).order('created_at', { ascending: true }).limit(250);
+    .eq('skill', skill);
+  if (period === 'weekly') {
+    const start = new Date();
+    start.setUTCHours(0, 0, 0, 0);
+    start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7));
+    query = query.gte('created_at', start.toISOString());
+  }
+  const { data, error } = await query.order('score', { ascending: false }).order('created_at', { ascending: true }).limit(250);
   if (error) throw error;
   const bestByUser = new Map();
   for (const item of data || []) {
