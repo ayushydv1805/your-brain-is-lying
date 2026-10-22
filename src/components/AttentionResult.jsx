@@ -3,6 +3,7 @@ import {
   getLevelProgress,
 } from '../game/gameConfig';
 import DifficultyBadge from './DifficultyBadge';
+import MistakeReview from './MistakeReview';
 
 export default function AttentionResult({ result, player, onAgain, onHome }) {
   const progress = getLevelProgress(player.xp);
@@ -14,6 +15,7 @@ export default function AttentionResult({ result, player, onAgain, onHome }) {
 
   return (
     <section className="result-screen attention-result-screen">
+      <MistakeReview result={result} />
       <div className="result-shell">
         <div className="result-kicker">
           <span className="pulse-dot" />
