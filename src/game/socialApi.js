@@ -117,7 +117,7 @@ export async function createChallenge(challengerId, opponentId, skill) {
 }
 
 export async function updateChallengeStatus(challengeId, status) {
-  if (!['accepted', 'cancelled'].includes(status)) throw new Error('Invalid challenge action.');
+  if (!['accepted', 'declined', 'cancelled'].includes(status)) throw new Error('Invalid challenge action.');
   const client = requireClient();
   const { data, error } = await client.from('brain_challenges')
     .update({ status }).eq('id', challengeId).eq('status', 'pending')
