@@ -231,7 +231,9 @@ export function buildMistakeReview(result, skill = result?.type) {
   }
   const history = Array.isArray(result?.roundHistory) ? result.roundHistory : [];
   return history.map((item) => {
-    const correct = Boolean(item?.correct);
+    const correct = skill === 'impulse'
+      ? Number(item?.accuracy) >= 100
+      : Boolean(item?.correct);
     let title = correct ? 'Correct round' : 'Round to review';
     let detail = '';
     let takeaway = '';
@@ -247,7 +249,7 @@ export function buildMistakeReview(result, skill = result?.type) {
       takeaway = item.explanation || (correct ? 'Check the rule once more before selecting.' : 'Describe the rule in your own words, then test it against each option.');
       title = correct ? 'Reasoning matched' : 'Problem to review';
     } else if (skill === 'impulse') {
-      detail = 'Outcome: ' + (item.label || item.outcome || (correct ? 'correct response' : 'response to review')) + '.';
+      detail = 'Hits: ' + (item.hits ?? 0) + ', correct holds: ' + (item.correctNoGo ?? 0) + ', misses: ' + (item.misses ?? 0) + ', false alarms: ' + (item.falseAlarms ?? 0) + '.';
       takeaway = correct ? 'Keep matching the response to the signal rule.' : 'Before responding, identify whether the signal calls for action or restraint.';
       title = correct ? 'Rule followed' : 'Response to review';
     } else {
