@@ -17,7 +17,7 @@ import {
   updateChallengeStatus,
   updateProfile,
 } from '../game/socialApi.js';
-import './social.css';
+import '../social.css';
 
 const SKILLS = [
   { id: 'reaction', label: 'Reaction', icon: '⚡' },
