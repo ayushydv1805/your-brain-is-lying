@@ -1,5 +1,5 @@
 import { getCoachInsights, getSkillStats } from '../game/brainFeatures';
-import './phase-ab.css';
+import '../phase-ab.css';
 
 export default function BrainCoach({ player, onHome, onPlay, onPlan, onWeekly }) {
   const insights = getCoachInsights(player);
