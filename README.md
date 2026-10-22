@@ -155,3 +155,24 @@ npm run preview
 - Copyable text summary plus Web Share / clipboard support
 - Shared-passport view with a clear read-only state and a path back to the local player profile
 - Responsive landing-page teaser and navigation entry points for desktop and mobile
+
+
+## Local profiles and persistent progress
+
+The app now opens through a local sign-in / account-creation screen. Profiles are stored on the current browser or app installation, and each profile has its own XP, levels, scores, streaks, achievements, and run history. Existing pre-login progress is migrated to the first profile created on that installation.
+
+- Passwords are verified with PBKDF2-SHA-256 instead of being stored as plain text.
+- Progress is saved in local storage so it survives closing and reopening the app.
+- The account menu includes **Download progress backup** and **Restore from backup**.
+- The recent run history keeps up to 500 results.
+
+**Important:** these are local device profiles, not online accounts. They work offline and do not sync between devices. Clearing browser/app storage can remove local data, so download backups periodically. Before launching a public multi-device product, use a real authentication/database backend for verified email, password recovery, and secure sync.
+
+## Build verification
+
+The GitHub Actions workflow runs the production Vite build for branch pushes and pull requests.
+
+~~~bash
+npm install
+npm run build
+~~~
