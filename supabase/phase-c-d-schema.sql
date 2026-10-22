@@ -51,7 +51,7 @@ create table if not exists public.brain_challenges (
   challenger_id uuid not null references auth.users(id) on delete cascade,
   opponent_id uuid not null references auth.users(id) on delete cascade,
   skill text not null check (skill in ('reaction', 'memory', 'attention', 'logic', 'impulse')),
-  status text not null default 'pending' check (status in ('pending', 'accepted', 'cancelled')),
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined', 'cancelled')),
   created_at timestamptz not null default now(),
   accepted_at timestamptz,
   expires_at timestamptz not null default (now() + interval '7 days'),
@@ -151,6 +151,10 @@ begin
       raise exception 'Only the invited friend can accept a challenge';
     end if;
     new.accepted_at := now();
+  elsif new.status = 'declined' then
+    if (select auth.uid()) is distinct from old.opponent_id then
+      raise exception 'Only the invited friend can decline a challenge';
+    end if;
   elsif new.status = 'cancelled' then
     if (select auth.uid()) is distinct from old.challenger_id then
       raise exception 'Only the challenge creator can cancel it';
@@ -236,6 +240,10 @@ drop policy if exists brain_challenges_accept on public.brain_challenges;
 create policy brain_challenges_accept on public.brain_challenges for update to authenticated
 using (opponent_id = (select auth.uid()) and status = 'pending')
 with check (opponent_id = (select auth.uid()) and status = 'accepted');
+drop policy if exists brain_challenges_decline on public.brain_challenges;
+create policy brain_challenges_decline on public.brain_challenges for update to authenticated
+using (opponent_id = (select auth.uid()) and status = 'pending')
+with check (opponent_id = (select auth.uid()) and status = 'declined');
 drop policy if exists brain_challenges_cancel on public.brain_challenges;
 create policy brain_challenges_cancel on public.brain_challenges for update to authenticated
 using (challenger_id = (select auth.uid()) and status = 'pending')
