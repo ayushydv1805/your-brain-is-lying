@@ -1,0 +1,326 @@
+/* Local account gate */
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 32px 16px;
+  color: #f7f8ff;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(82, 97, 255, 0.19), transparent 34%),
+    radial-gradient(circle at 90% 85%, rgba(0, 220, 190, 0.11), transparent 30%),
+    #080b16;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.auth-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image: radial-gradient(rgba(255,255,255,.4) .6px, transparent .6px);
+  background-size: 5px 5px;
+}
+
+.auth-card {
+  width: min(100%, 440px);
+  z-index: 1;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid rgba(168, 179, 255, .19);
+  border-radius: 28px;
+  background: rgba(13, 17, 37, .92);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, .42), inset 0 1px rgba(255,255,255,.04);
+}
+
+.auth-brand-mark {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  font-size: 27px;
+  background: linear-gradient(135deg, rgba(128, 142, 255, .25), rgba(45, 231, 198, .14));
+  border: 1px solid rgba(163, 177, 255, .25);
+}
+
+.auth-eyebrow {
+  margin: 26px 0 9px;
+  color: #9da9ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .17em;
+}
+
+.auth-card h1 {
+  margin: 0;
+  color: #f7f8ff;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: clamp(28px, 6vw, 36px);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.auth-subtitle {
+  margin: 12px 0 24px;
+  color: #aab1cc;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.auth-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 22px;
+  padding: 4px;
+  border: 1px solid rgba(168, 179, 255, .13);
+  border-radius: 13px;
+  background: rgba(4, 7, 20, .65);
+}
+
+.auth-mode-tabs button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 9px;
+  color: #aab1cc;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auth-mode-tabs button.is-active {
+  color: #fff;
+  background: #252c50;
+  box-shadow: inset 0 0 0 1px rgba(160, 171, 255, .12);
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-form > label:not(.auth-remember) {
+  display: grid;
+  gap: 8px;
+  color: #e5e8fb;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-form input:not([type='checkbox']) {
+  width: 100%;
+  min-height: 47px;
+  padding: 0 14px;
+  border: 1px solid rgba(166, 177, 224, .2);
+  border-radius: 12px;
+  outline: none;
+  color: #f7f8ff;
+  background: rgba(4, 7, 20, .74);
+  font: inherit;
+  font-size: 14px;
+}
+
+.auth-form input:not([type='checkbox']):focus {
+  border-color: #8793ff;
+  box-shadow: 0 0 0 3px rgba(135, 147, 255, .12);
+}
+
+.auth-form input::placeholder {
+  color: #727b9d;
+}
+
+.auth-remember {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #b5bdd7;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.auth-remember input {
+  width: 15px;
+  height: 15px;
+  accent-color: #8c99ff;
+}
+
+.auth-submit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 49px;
+  margin-top: 2px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  color: #08101a;
+  background: linear-gradient(110deg, #aab5ff, #7df1dc);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform .18s ease, filter .18s ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.auth-submit:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.auth-message {
+  margin: -2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.auth-message.is-error { color: #ff9da9; }
+.auth-message.is-notice { color: #8cf1d5; }
+
+.auth-privacy-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 22px 0 0;
+  color: #aeb8d7;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.auth-privacy-note span { color: #83e7d5; }
+
+.auth-security-note {
+  margin: 10px 0 0;
+  color: #727d9f;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.account-dock {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 200;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.account-dock-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  max-width: min(270px, calc(100vw - 28px));
+  padding: 5px 12px 5px 6px;
+  border: 1px solid rgba(157, 169, 255, .32);
+  border-radius: 999px;
+  color: #f7f8ff;
+  background: rgba(11, 15, 32, .94);
+  box-shadow: 0 8px 30px rgba(0,0,0,.28);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+}
+
+.account-avatar {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #11182b;
+  background: linear-gradient(135deg, #aab5ff, #7df1dc);
+  font-size: 13px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.account-dock-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.account-dock-chevron { color: #aab5ff; }
+
+.account-menu {
+  position: absolute;
+  right: 0;
+  bottom: 52px;
+  display: grid;
+  gap: 9px;
+  width: min(290px, calc(100vw - 28px));
+  padding: 16px;
+  border: 1px solid rgba(157, 169, 255, .24);
+  border-radius: 17px;
+  color: #f7f8ff;
+  background: rgba(11, 15, 32, .98);
+  box-shadow: 0 18px 60px rgba(0,0,0,.42);
+  backdrop-filter: blur(22px);
+}
+
+.account-menu-label {
+  margin: 0;
+  color: #8490b7;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .15em;
+}
+
+.account-menu > strong {
+  margin-top: -5px;
+  font-size: 14px;
+}
+
+.account-menu > small {
+  margin-top: -8px;
+  color: #9da7c8;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.account-menu > button {
+  padding: 10px 11px;
+  border: 1px solid rgba(157, 169, 255, .14);
+  border-radius: 10px;
+  color: #e8ebff;
+  background: #171d38;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.account-menu > button:hover { background: #242c50; }
+
+.account-menu > button.account-signout {
+  border-color: rgba(255, 130, 150, .2);
+  color: #ffb4bf;
+  background: rgba(123, 31, 57, .2);
+}
+
+.account-menu-message {
+  margin: 0;
+  color: #9de9d7;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.account-menu-footnote {
+  margin: 1px 0 0;
+  color: #707b9e;
+  font-size: 10px;
+}
+
+.auth-file-input { display: none; }
+
+@media (max-width: 560px) {
+  .auth-page { padding: 18px 12px; }
+  .auth-card { border-radius: 22px; padding: 24px 20px; }
+  .account-dock { right: 9px; bottom: 9px; }
+}
