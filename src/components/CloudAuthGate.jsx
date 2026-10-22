@@ -7,6 +7,34 @@ import { CloudAuthContext } from '../lib/CloudAuthContext.jsx';
 import './AuthGate.css';
 
 const ACTIVE_PROFILE_KEY = 'your-brain-is-lying-active-profile';
+const LOCAL_ACCOUNTS_KEY = 'your-brain-is-lying-accounts-v1';
+const CLOUD_MIGRATION_KEY = 'your-brain-is-lying-cloud-legacy-imported-v1';
+
+function stableStringify(value) {
+  if (Array.isArray(value)) return '[' + value.map(stableStringify).join(',') + ']';
+  if (value && typeof value === 'object') {
+    return '{' + Object.keys(value).sort().map((key) => JSON.stringify(key) + ':' + stableStringify(value[key])).join(',') + '}';
+  }
+  return JSON.stringify(value);
+}
+
+function readLegacyLocalProgress() {
+  try {
+    if (localStorage.getItem(CLOUD_MIGRATION_KEY) === '1') return null;
+    const oldProfileId = localStorage.getItem(ACTIVE_PROFILE_KEY);
+    if (!oldProfileId) return null;
+    const accounts = JSON.parse(localStorage.getItem(LOCAL_ACCOUNTS_KEY) || '[]');
+    const account = Array.isArray(accounts) ? accounts.find((item) => item?.id === oldProfileId) : null;
+    if (!account) return null;
+    const raw = localStorage.getItem('your-brain-is-lying-player:' + oldProfileId);
+    if (!raw) return null;
+    const player = JSON.parse(raw);
+    if (!player || typeof player !== 'object' || !Array.isArray(player.runHistory) || !Array.isArray(player.activityDates)) return null;
+    return { profileId: oldProfileId, profileName: account.name || 'Previous local profile', player };
+  } catch {
+    return null;
+  }
+}
 
 function safeHandle(value) {
   return String(value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20);
@@ -23,6 +51,9 @@ function friendlyError(error) {
 
 export default function CloudAuthGate({ children }) {
   const [session, setSession] = useState(null);
+  const [legacyImport, setLegacyImport] = useState(readLegacyLocalProgress);
+  const [legacyImportBusy, setLegacyImportBusy] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [booting, setBooting] = useState(true);
   const [screen, setScreen] = useState('login');
   const [email, setEmail] = useState('');
@@ -38,12 +69,12 @@ export default function CloudAuthGate({ children }) {
   const [syncStatus, setSyncStatus] = useState('Connecting to cloud…');
   const [realtimeStatus, setRealtimeStatus] = useState('starting');
   const [showAccountMenu, setShowAccountMenu] = useState(false);
-  const [pendingImport, setPendingImport] = useState(null);
   const importInput = useRef(null);
   const saveTimer = useRef(null);
   const syncLock = useRef(false);
   const lastCloudPayload = useRef('');
   const loadedUserId = useRef(null);
+  const recoveryFlow = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -51,6 +82,7 @@ export default function CloudAuthGate({ children }) {
       if (!active) return;
       setSession(nextSession);
       if (event === 'PASSWORD_RECOVERY') {
+        recoveryFlow.current = true;
         setScreen('reset');
         setNotice('Choose a new password for your account.');
       }
@@ -102,19 +134,20 @@ export default function CloudAuthGate({ children }) {
       setReady(true);
       setError('');
       setSyncStatus(navigator.onLine ? 'Cloud synced' : 'Offline · saved on this device');
-      setScreen('app');
+      if (!recoveryFlow.current) setScreen('app');
     })().catch((cause) => {
       if (cancelled) return;
       setProfileIssue(friendlyError(cause));
       setSyncStatus('Cloud setup needs attention');
     });
     return () => { cancelled = true; };
-  }, [session?.user?.id, booting]);
+  }, [session?.user?.id, booting, retryCount]);
 
   useEffect(() => {
     const userId = session?.user?.id;
     if (!ready || !userId || loadedUserId.current !== userId) return undefined;
     let disposed = false;
+    lastCloudPayload.current = stableStringify(loadPlayer());
 
     const queueSave = (event) => {
       if (disposed || !event?.detail?.player) return;
@@ -125,12 +158,13 @@ export default function CloudAuthGate({ children }) {
       window.clearTimeout(saveTimer.current);
       setSyncStatus('Syncing progress…');
       const playerSnapshot = event.detail.player;
+      if (stableStringify(playerSnapshot) === lastCloudPayload.current) return;
       saveTimer.current = window.setTimeout(async () => {
         if (disposed || syncLock.current) return;
         syncLock.current = true;
         try {
           await pushCloudProgress(userId, playerSnapshot);
-          lastCloudPayload.current = JSON.stringify(playerSnapshot);
+          lastCloudPayload.current = stableStringify(playerSnapshot);
           if (!disposed) setSyncStatus('Cloud synced');
         } catch (cause) {
           if (!disposed) setSyncStatus('Saved here · cloud sync failed');
@@ -143,18 +177,18 @@ export default function CloudAuthGate({ children }) {
 
     const refreshRemote = async (remoteData) => {
       if (disposed || !remoteData || syncLock.current) return;
-      const remoteFingerprint = JSON.stringify(remoteData);
+      const remoteFingerprint = stableStringify(remoteData);
       if (remoteFingerprint === lastCloudPayload.current) return;
       syncLock.current = true;
       try {
         const local = loadPlayer();
         const merged = mergePlayerSnapshots(local, remoteData);
-        const before = JSON.stringify(local);
-        const next = JSON.stringify({ ...merged, savedAt: local.savedAt });
+        const before = stableStringify({ ...local, savedAt: undefined });
+        const next = stableStringify({ ...merged, savedAt: undefined });
         if (before !== next) {
           savePlayer(merged);
           await pushCloudProgress(userId, loadPlayer());
-          lastCloudPayload.current = JSON.stringify(loadPlayer());
+          lastCloudPayload.current = stableStringify(loadPlayer());
         } else {
           lastCloudPayload.current = remoteFingerprint;
         }
@@ -170,7 +204,7 @@ export default function CloudAuthGate({ children }) {
     const onOnline = () => {
       setSyncStatus('Reconnecting…');
       pushCloudProgress(userId, loadPlayer())
-        .then(() => { lastCloudPayload.current = JSON.stringify(loadPlayer()); setSyncStatus('Cloud synced'); })
+        .then(() => { lastCloudPayload.current = stableStringify(loadPlayer()); setSyncStatus('Cloud synced'); })
         .catch(() => setSyncStatus('Saved here · cloud sync failed'));
     };
 
@@ -266,6 +300,7 @@ export default function CloudAuthGate({ children }) {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       setPassword('');
+      recoveryFlow.current = false;
       setScreen('app');
       setNotice('Password updated successfully.');
     });
@@ -313,6 +348,29 @@ export default function CloudAuthGate({ children }) {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+  };
+
+
+  const importLegacyProgress = async () => {
+    if (!legacyImport?.player || !session?.user?.id) return;
+    setLegacyImportBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const localStatus = getPlayerStorageStatus();
+      const current = loadPlayer();
+      const merged = localStatus.hasSavedData ? mergePlayerSnapshots(current, legacyImport.player) : legacyImport.player;
+      if (!savePlayer(merged)) throw new Error('Could not import the old profile into this device.');
+      await pushCloudProgress(session.user.id, loadPlayer());
+      localStorage.setItem(CLOUD_MIGRATION_KEY, '1');
+      setLegacyImport(null);
+      setNotice('Your previous local profile has been imported and synced to your cloud account.');
+      setSyncStatus('Cloud synced');
+    } catch (cause) {
+      setError(friendlyError(cause));
+    } finally {
+      setLegacyImportBusy(false);
+    }
   };
 
   const restoreBackup = (event) => {
@@ -384,7 +442,7 @@ export default function CloudAuthGate({ children }) {
   }
 
   if (profileIssue) {
-    return <main className="auth-page"><section className="auth-card"><div className="auth-brand-mark">⚠️</div><p className="auth-eyebrow">CLOUD SETUP</p><h1>One setup step remains</h1><p className="auth-subtitle">{profileIssue}</p><button className="auth-submit" onClick={() => { setProfileIssue(''); setReady(false); setSession({ ...session }); }}>Retry connection <span>→</span></button><button className="auth-link-button" onClick={signOut}>Sign out</button></section></main>;
+    return <main className="auth-page"><section className="auth-card"><div className="auth-brand-mark">⚠️</div><p className="auth-eyebrow">CLOUD SETUP</p><h1>One setup step remains</h1><p className="auth-subtitle">{profileIssue}</p><button className="auth-submit" onClick={() => { setProfileIssue(''); setReady(false); setRetryCount((value) => value + 1); }}>Retry connection <span>→</span></button><button className="auth-link-button" onClick={signOut}>Sign out</button></section></main>;
   }
 
   if (screen === 'profile' && !profile) {
