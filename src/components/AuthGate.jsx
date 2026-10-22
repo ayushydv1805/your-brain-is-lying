@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import CloudAuthGate from './CloudAuthGate.jsx';
+import { isCloudConfigured } from '../lib/supabaseClient.js';
 import './AuthGate.css';
 import {
   activateLocalProfile,
@@ -40,7 +42,7 @@ function downloadJson(filename, value) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export default function AuthGate({ children }) {
+function LocalAuthGate({ children }) {
   const [account, setAccount] = useState(initialAccount);
   const [mode, setMode] = useState(() => (hasLocalAccounts() ? 'login' : 'register'));
   const [name, setName] = useState('');
@@ -214,4 +216,8 @@ export default function AuthGate({ children }) {
       </div>
     </>
   );
+}
+
+export default function AuthGate(props) {
+  return isCloudConfigured ? <CloudAuthGate {...props} /> : <LocalAuthGate {...props} />;
 }
