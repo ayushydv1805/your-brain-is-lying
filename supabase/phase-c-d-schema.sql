@@ -36,8 +36,10 @@ create table if not exists public.brain_friend_requests (
   constraint brain_friend_request_not_self check (requester_id <> receiver_id)
 );
 
-create unique index if not exists brain_friend_requests_pair_unique_idx
-  on public.brain_friend_requests (least(requester_id, receiver_id), greatest(requester_id, receiver_id));
+drop index if exists public.brain_friend_requests_pair_unique_idx;
+create unique index brain_friend_requests_pair_unique_idx
+  on public.brain_friend_requests (least(requester_id, receiver_id), greatest(requester_id, receiver_id))
+  where status <> 'declined';
 create index if not exists brain_friend_requests_receiver_status_idx
   on public.brain_friend_requests (receiver_id, status, created_at desc);
 create index if not exists brain_friend_requests_requester_status_idx
@@ -172,6 +174,7 @@ alter table public.brain_challenge_scores enable row level security;
 alter table public.brain_leaderboard_entries enable row level security;
 
 -- Only signed-in users may see public-facing profile handles. Profile data contains no email.
+grant usage on schema public to authenticated;
 revoke all on public.brain_profiles, public.brain_progress, public.brain_friend_requests,
   public.brain_challenges, public.brain_challenge_scores, public.brain_leaderboard_entries from anon;
 grant select, insert, update, delete on public.brain_profiles, public.brain_progress,
@@ -260,12 +263,10 @@ with check (
 );
 drop policy if exists brain_challenge_scores_no_update on public.brain_challenge_scores;
 create policy brain_challenge_scores_no_update on public.brain_challenge_scores for update to authenticated using (false) with check (false);
-drop policy if exists brain_challenge_scores_delete_self on public.brain_challenge_scores;
-create policy brain_challenge_scores_delete_self on public.brain_challenge_scores for delete to authenticated using (user_id = (select auth.uid()));
 
 drop policy if exists brain_leaderboard_entries_read_opted_in on public.brain_leaderboard_entries;
 create policy brain_leaderboard_entries_read_opted_in on public.brain_leaderboard_entries for select to authenticated
-using (exists (select 1 from public.brain_profiles p where p.user_id = user_id and p.leaderboard_opt_in));
+using (exists (select 1 from public.brain_profiles p where p.user_id = brain_leaderboard_entries.user_id and p.leaderboard_opt_in));
 drop policy if exists brain_leaderboard_entries_insert_opted_in on public.brain_leaderboard_entries;
 create policy brain_leaderboard_entries_insert_opted_in on public.brain_leaderboard_entries for insert to authenticated
 with check (
@@ -276,5 +277,14 @@ drop policy if exists brain_leaderboard_entries_delete_self on public.brain_lead
 create policy brain_leaderboard_entries_delete_self on public.brain_leaderboard_entries for delete to authenticated
 using (user_id = (select auth.uid()));
 
--- Realtime is optional; enable it for brain_progress if live cross-device updates are desired.
--- The app still syncs on login and after every saved run if Realtime is not enabled.
+-- Enable live sync when the project has the standard Supabase Realtime publication.
+do $
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'brain_progress'
+     ) then
+    execute 'alter publication supabase_realtime add table public.brain_progress';
+  end if;
+end $;
