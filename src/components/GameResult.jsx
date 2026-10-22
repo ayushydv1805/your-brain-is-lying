@@ -1,5 +1,6 @@
 import { getLevelFromXp, getLevelProgress } from '../game/gameConfig';
 import DifficultyBadge from './DifficultyBadge';
+import MistakeReview from './MistakeReview';
 
 export default function GameResult({ result, player, onAgain, onHome }) {
   const level = getLevelFromXp(player.xp);
@@ -9,6 +10,7 @@ export default function GameResult({ result, player, onAgain, onHome }) {
 
   return (
     <section className="result-screen">
+      <MistakeReview result={result} />
       <div className="result-shell">
         <div className="result-kicker">
           <span className="pulse-dot" />
