@@ -56,6 +56,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
   const [profiles, setProfiles] = useState(new Map());
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaderboardSkill, setLeaderboardSkill] = useState('memory');
+  const [leaderboardPeriod, setLeaderboardPeriod] = useState('weekly');
   const [challengeSkill, setChallengeSkill] = useState('memory');
   const [loading, setLoading] = useState(false);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
@@ -90,7 +91,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
       setProfiles(new Map(publicProfiles.map((item) => [item.user_id, item])));
       if (tab === 'leaderboard') {
         setLeaderboardLoading(true);
-        try { setLeaderboard(await loadLeaderboard(leaderboardSkill)); }
+        try { setLeaderboard(await loadLeaderboard(leaderboardSkill, leaderboardPeriod)); }
         finally { setLeaderboardLoading(false); }
       }
     } catch (cause) {
@@ -110,12 +111,12 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
     if (tab !== 'leaderboard' || !currentUser?.id) return;
     let cancelled = false;
     setLeaderboardLoading(true);
-    loadLeaderboard(leaderboardSkill)
+    loadLeaderboard(leaderboardSkill, leaderboardPeriod)
       .then((entries) => { if (!cancelled) setLeaderboard(entries); })
       .catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : 'Could not load the leaderboard.'); })
       .finally(() => { if (!cancelled) setLeaderboardLoading(false); });
     return () => { cancelled = true; };
-  }, [tab, leaderboardSkill, currentUser?.id]);
+  }, [tab, leaderboardSkill, leaderboardPeriod, currentUser?.id]);
 
   const act = async (action, successMessage) => {
     setBusy(true);
@@ -191,7 +192,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
       const updated = await updateProfile(currentUser.id, { leaderboard_opt_in: enabled });
       setProfile?.(updated);
       setNotice(enabled ? 'Leaderboard sharing enabled. You can publish your best saved results.' : 'Leaderboard sharing disabled. Your old entries will no longer appear.');
-      if (tab === 'leaderboard') setLeaderboard(await loadLeaderboard(leaderboardSkill));
+      if (tab === 'leaderboard') setLeaderboard(await loadLeaderboard(leaderboardSkill, leaderboardPeriod));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not update leaderboard sharing.');
     } finally { setBusy(false); }
@@ -200,7 +201,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
   const publishLatestScore = () => act(async () => {
     if (!recentRun) throw new Error('Complete a ' + leaderboardSkill + ' test first.');
     await publishLeaderboardResult(currentUser.id, profile, recentRun, leaderboardSkill);
-    setLeaderboard(await loadLeaderboard(leaderboardSkill));
+    setLeaderboard(await loadLeaderboard(leaderboardSkill, leaderboardPeriod));
   }, 'Your latest ' + leaderboardSkill + ' result was published.');
 
   return (
@@ -285,7 +286,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
           <section className="social-section">
             <div className="social-section-heading"><div><span className="social-kicker">OPT-IN RANKINGS</span><h2>Compare your <span>best runs.</span></h2></div><p>Only your chosen public handle, avatar, skill score and result metric appear. Email and full practice history stay private.</p></div>
             <article className="social-optin-card"><div><strong>Show my scores on the public leaderboard</strong><p>Off by default. When enabled, you can publish individual saved results. Turn it off any time to hide all your entries.</p></div><label className="social-switch"><input type="checkbox" checked={Boolean(profile?.leaderboard_opt_in)} disabled={busy} onChange={(event) => optIntoLeaderboard(event.target.checked)} /><span></span></label></article>
-            <div className="social-leaderboard-toolbar"><label><span>Choose a skill</span><select value={leaderboardSkill} onChange={(event) => setLeaderboardSkill(event.target.value)}>{SKILLS.map((skill) => <option key={skill.id} value={skill.id}>{skill.icon} {skill.label}</option>)}</select></label><button className="ghost-button" onClick={() => loadLeaderboard(leaderboardSkill).then(setLeaderboard).catch((cause)=>setError(cause.message))} disabled={leaderboardLoading}>{leaderboardLoading ? 'Loading…' : 'Refresh board'}</button><button className="primary-button" disabled={busy || !profile?.leaderboard_opt_in || !recentRun} onClick={publishLatestScore}><span>Publish latest run</span><span className="button-arrow">→</span></button></div>
+            <div className="social-leaderboard-toolbar"><label><span>Choose a skill</span><select value={leaderboardSkill} onChange={(event) => setLeaderboardSkill(event.target.value)}>{SKILLS.map((skill) => <option key={skill.id} value={skill.id}>{skill.icon} {skill.label}</option>)}</select></label><div className="social-period-switch" role="group" aria-label="Leaderboard period"><button className={leaderboardPeriod === 'weekly' ? 'is-active' : ''} aria-pressed={leaderboardPeriod === 'weekly'} onClick={() => setLeaderboardPeriod('weekly')}>Weekly tournament</button><button className={leaderboardPeriod === 'all-time' ? 'is-active' : ''} aria-pressed={leaderboardPeriod === 'all-time'} onClick={() => setLeaderboardPeriod('all-time')}>All-time</button></div><button className="ghost-button" onClick={() => loadLeaderboard(leaderboardSkill, leaderboardPeriod).then(setLeaderboard).catch((cause)=>setError(cause.message))} disabled={leaderboardLoading}>{leaderboardLoading ? 'Loading…' : 'Refresh board'}</button><button className="primary-button" disabled={busy || !profile?.leaderboard_opt_in || !recentRun} onClick={publishLatestScore}><span>Publish latest run</span><span className="button-arrow">→</span></button></div>
             {!profile?.leaderboard_opt_in && <p className="social-note">Leaderboard sharing is off. Turn it on to publish scores or appear in rankings.</p>}
             {profile?.leaderboard_opt_in && <div className="social-leaderboard-list">
               {leaderboardLoading ? <div className="social-empty compact"><p>Loading rankings…</p></div> : leaderboard.length ? leaderboard.map((entry,index) => <article className={'social-rank-row ' + (entry.user_id === currentUser.id ? 'is-you' : '')} key={entry.user_id}><span className="social-rank-number">{String(index+1).padStart(2,'0')}</span><span className="social-person-avatar">{entry.profile.avatar_emoji || '🧠'}</span><div className="social-person-info"><strong>{entry.profile.display_name}{entry.user_id === currentUser.id ? ' (you)' : ''}</strong><small>@{entry.profile.handle} · {entry.raw_metric}</small></div><strong className="social-rank-score">{Number(entry.score).toFixed(1)}</strong></article>) : <div className="social-empty compact"><p>No opt-in results for this skill yet. Publish your first saved run to start the board.</p></div>}
