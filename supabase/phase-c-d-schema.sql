@@ -286,7 +286,7 @@ create policy brain_leaderboard_entries_delete_self on public.brain_leaderboard_
 using (user_id = (select auth.uid()));
 
 -- Enable live sync when the project has the standard Supabase Realtime publication.
-do $
+do $realtime$
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
      and not exists (
@@ -295,4 +295,4 @@ begin
      ) then
     execute 'alter publication supabase_realtime add table public.brain_progress';
   end if;
-end $;
+end $realtime$;
