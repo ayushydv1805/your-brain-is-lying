@@ -197,3 +197,43 @@ npm run build
 ~~~
 
 The Brain Coach uses transparent, deterministic rules on saved game results; it is not a remote generative-AI feature and is not intended for medical, diagnostic, or intelligence assessment.
+
+
+## Phase C — Real cloud accounts and cross-device sync
+
+The app supports Supabase email/password authentication when both Vite environment variables are configured. Cloud accounts use Supabase Auth (including email confirmation and password reset); the browser never receives a service-role/secret key. Each account gets a public handle/profile and a private progress row protected by Row Level Security (RLS). Saved runs are synced to the account after progress saves; cloud changes can flow back through Supabase Realtime when the project's Realtime publication is enabled.
+
+A cloud user can also import an existing device-local profile or restore a JSON backup after signing in. Local profiles remain available when cloud credentials are not configured.
+
+## Phase D — Friends, head-to-head challenges, and leaderboards
+
+- Search for players by their unique handle and send/accept/decline friend requests.
+- Send a friend a challenge for one of the five skills. The invited player accepts it; both players complete a fresh run and submit one comparable 0–100 score.
+- View each challenge's submitted scores and see the outcome after both submissions. Challenges appear in the invited friend's Social Hub after they sign in.
+- Enter skill-specific **weekly tournaments** or all-time leaderboards by manually publishing saved results.
+- Leaderboard sharing is opt-in and off by default. Public-facing views expose the chosen handle, avatar and submitted score—not email or private progress history.
+
+These rankings are for friendly competition. Scores are submitted by the client, so they are not fraud-proof enough for prizes, money, or other high-stakes competition.
+
+## Configure the cloud backend (required to turn on Phases C/D)
+
+For security, this repository does not contain a live database URL, publishable key, or service-role key, and the Phase C/D schema has **not** been applied automatically to any existing Supabase project. Use a dedicated Supabase project for this app; do not point this app at another production app's database.
+
+1. In your Supabase dashboard, open the project's SQL Editor and run the complete file supabase/phase-c-d-schema.sql. This creates the profile, private progress, friend request, challenge, score and leaderboard tables plus RLS policies, triggers and indexes.
+2. In **Authentication → Providers**, enable email/password sign-in. Set the project's Site URL and Redirect URLs to the actual development and production origins you use, so confirmation and reset links return to this app.
+3. In **Project Settings / API**, copy the project URL and its **publishable key** (or legacy anon key). Never use the service_role or secret key in a browser/mobile build.
+4. Copy .env.example to .env in the project root and replace the placeholders:
+
+   ~~~env
+   VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_REPLACE_WITH_YOUR_KEY
+   ~~~
+
+5. If the project does not expose public through the Data API, add public in the project's Data API exposed-schema settings. Keep RLS enabled on every table; the SQL includes explicit table grants and row-level policies.
+6. Run npm install, npm test, and npm run dev. Create two separate test accounts to verify the complete friend-request and challenge flow. The new cloud-login screen appears only when the two environment variables are set; without them the existing device-local login remains available.
+
+Because .env is ignored by Git, keep your real project values in your local environment or deployment provider's environment settings—not in a commit. For an Android/desktop package, also add the final app's allowed redirect URL(s) to the Supabase Auth settings before distributing it.
+
+## Phase C/D verification
+
+The automated suite includes deterministic tests for cloud progress merging, duplicate run de-duplication, normalized reaction scoring, skill score calculations, and invalid cross-skill submissions. GitHub Actions runs npm test followed by the Vite production build on pushes and pull requests.

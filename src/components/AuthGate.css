@@ -324,3 +324,45 @@
   .auth-card { border-radius: 22px; padding: 24px 20px; }
   .account-dock { right: 9px; bottom: 9px; }
 }
+
+
+/* Phase C cloud authentication additions */
+.auth-link-button {
+  display: block;
+  margin: 14px auto 0;
+  padding: 7px 10px;
+  border: 0;
+  color: #aab5ff;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+.auth-link-button:hover { color: #d7dbff; text-decoration: underline; }
+.auth-help { color: #7c86a8; font-size: 10px; line-height: 1.5; font-weight: 500; }
+.cloud-account-dock {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 220;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+.cloud-account-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  max-width: min(280px, calc(100vw - 28px));
+  padding: 5px 12px 5px 6px;
+  border: 1px solid rgba(89, 215, 194, .3);
+  border-radius: 999px;
+  color: #f7f8ff;
+  background: rgba(11, 15, 32, .96);
+  box-shadow: 0 8px 30px rgba(0,0,0,.28);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+}
+.cloud-sync-status { color: #8ce6d1 !important; }
+@media (max-width: 560px) {
+  .cloud-account-dock { right: 9px; bottom: 9px; }
+}

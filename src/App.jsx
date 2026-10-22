@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import SocialHub from './components/SocialHub.jsx';
+import { useCloudAuth } from './lib/CloudAuthContext.jsx';
 import './App.css';
 import './daily.css';
 import './insights.css';
@@ -89,6 +91,7 @@ const levels = [
 ];
 
 function App() {
+  const cloudAuth = useCloudAuth();
   const [sharedPassport, setSharedPassport] = useState(() => getSharedPassportFromLocation());
   const [view, setView] = useState(() => (getSharedPassportFromLocation() ? 'passport' : 'home'));
   const [showRoadmap, setShowRoadmap] = useState(false);
@@ -384,6 +387,10 @@ function App() {
     clearPassportQuery();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (view === 'social') {
+    return <SocialHub user={cloudAuth?.user} profile={cloudAuth?.profile} player={player} onHome={goHome} onProfileChange={cloudAuth?.setProfile} />;
+  }
 
   if (view === 'coach') {
     return <BrainCoach player={player} onHome={goHome} onPlay={startTest} onPlan={() => openPhaseView('training-plan')} onWeekly={() => openPhaseView('weekly-report')} />;
@@ -759,6 +766,7 @@ function App() {
               <button className="hero-report-link" onClick={() => openPhaseView('coach')}>Brain Coach ↗</button>
               <button className="hero-report-link" onClick={() => openPhaseView('training-plan')}>Training Plan ↗</button>
               <button className="hero-report-link" onClick={() => openPhaseView('weekly-report')}>Weekly Report ↗</button>
+              <button className="hero-report-link" onClick={() => openPhaseView('social')}>Friends &amp; Leaderboard ↗</button>
               <button className="hero-report-link" onClick={() => openPhaseView('settings')}>Comfort Settings ↗</button>
             </div>
 
@@ -772,6 +780,7 @@ function App() {
               <button onClick={() => openPhaseView('coach')}>Coach</button>
               <button onClick={() => openPhaseView('training-plan')}>Plan</button>
               <button onClick={() => openPhaseView('weekly-report')}>Weekly</button>
+              <button onClick={() => openPhaseView('social')}>Social</button>
               <button onClick={() => openPhaseView('settings')}>Settings</button>
             </div>
           </div>
@@ -945,6 +954,18 @@ function App() {
             <button className="ghost-button" onClick={() => openPhaseView('training-plan')}>Build training plan</button>
             <button className="ghost-button" onClick={() => openPhaseView('weekly-report')}>View weekly report</button>
             <button className="ghost-button" onClick={() => openPhaseView('settings')}>Accessibility settings</button>
+          </div>
+        </section>
+
+        <section className="phase-ab-home">
+          <div className="phase-ab-home-copy">
+            <span className="section-kicker">PHASE C + D · CLOUD + COMMUNITY</span>
+            <h2>Your progress, <span>on every device. Compete with friends.</span></h2>
+            <p>Use a cloud account to sync your saved progress, find players by handle, create head-to-head challenges, and opt into skill-specific leaderboards. Configure your Supabase project to turn these online features on.</p>
+          </div>
+          <div className="phase-ab-home-actions">
+            <button className="primary-button" onClick={() => openPhaseView('social')}><span>Open Social Hub</span><span className="button-arrow">→</span></button>
+            <button className="ghost-button" onClick={() => openPhaseView('coach')}>Brain Coach</button>
           </div>
         </section>
 
