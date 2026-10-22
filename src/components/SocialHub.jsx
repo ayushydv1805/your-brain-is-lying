@@ -165,6 +165,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
   const activeChallenges = challenges.filter((item) => item.status === 'accepted');
   const visibleChallenges = challenges.filter((item) => !['cancelled', 'declined'].includes(item.status));
   const scoresFor = (challengeId) => challengeScores.filter((item) => item.challenge_id === challengeId);
+  const activeChallengeCount = activeChallenges.filter((challenge) => scoresFor(challenge.id).length < 2).length;
   const ownScoreFor = (challengeId) => scoresFor(challengeId).find((item) => item.user_id === currentUser.id);
   const recentRun = latestRunFor(player, leaderboardSkill, 0);
 
@@ -202,7 +203,7 @@ export default function SocialHub({ user, profile: passedProfile, player, onHome
         <section className="social-hero">
           <span className="social-kicker">YOUR COMMUNITY</span><h1>Progress is better <span>together.</span></h1>
           <p>Find players by handle, practise against a friend, and compare scores on skill-specific boards. Your email and private progress history are never listed publicly.</p>
-          <div className="social-stat-row"><div><strong>{friendIds.length}</strong><span>friends</span></div><div><strong>{incomingRequests.length}</strong><span>requests to review</span></div><div><strong>{activeChallenges.length}</strong><span>active challenges</span></div></div>
+          <div className="social-stat-row"><div><strong>{friendIds.length}</strong><span>friends</span></div><div><strong>{incomingRequests.length}</strong><span>requests to review</span></div><div><strong>{activeChallengeCount}</strong><span>active challenges</span></div></div>
         </section>
 
         <nav className="social-tabs" aria-label="Social features">
