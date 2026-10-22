@@ -1,5 +1,6 @@
 import { GAME_CONFIG, getLevelProgress } from '../game/gameConfig';
 import DifficultyBadge from './DifficultyBadge';
+import MistakeReview from './MistakeReview';
 
 export default function LogicResult({ result, player, onAgain, onHome }) {
   const progress = getLevelProgress(player.xp);
@@ -7,6 +8,7 @@ export default function LogicResult({ result, player, onAgain, onHome }) {
   const averageLabel = result.average === null || result.average === undefined ? '—' : result.average + ' ms';
   return (
     <section className="result-screen logic-result-screen">
+      <MistakeReview result={result} />
       <div className="result-shell">
         <div className="result-kicker"><span className="pulse-dot" />LOGIC RUN COMPLETE</div>
         <h1>The pattern<br /><span>was not enough.</span></h1>
