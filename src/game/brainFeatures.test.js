@@ -65,6 +65,16 @@ test('mistake review does not fail when a reaction summary has no timings', () =
   assert.deepEqual(buildMistakeReview({ type: 'reaction', times: [] }), []);
 });
 
+test('impulse review reports rounds with false alarms or missed go signals', () => {
+  const review = buildMistakeReview({ type: 'impulse', roundHistory: [
+    { round: 1, accuracy: 80, hits: 3, correctNoGo: 1, misses: 1, falseAlarms: 0 },
+    { round: 2, accuracy: 100, hits: 2, correctNoGo: 3, misses: 0, falseAlarms: 0 },
+  ] });
+  assert.equal(review[0].correct, false);
+  assert.match(review[0].detail, /misses: 1/);
+  assert.equal(review[1].correct, true);
+});
+
 test('player validation rejects malformed imports', () => {
   assert.equal(validatePlayerRecord({ xp: 1, runHistory: [], activityDates: [] }), true);
   assert.equal(validatePlayerRecord({ xp: -1, runHistory: [], activityDates: [] }), false);
