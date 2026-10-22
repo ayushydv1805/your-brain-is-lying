@@ -249,7 +249,11 @@ export function savePlayer(player) {
     const payload = { ...player, schemaVersion: STORAGE_SCHEMA_VERSION, savedAt: new Date().toISOString() };
     const serialized = JSON.stringify(payload);
     localStorage.setItem(key, serialized);
-    return localStorage.getItem(key) === serialized;
+    const verified = localStorage.getItem(key) === serialized;
+    if (verified && typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('brain-player-saved', { detail: { player: payload } }));
+    }
+    return verified;
   } catch {
     return false;
   }
