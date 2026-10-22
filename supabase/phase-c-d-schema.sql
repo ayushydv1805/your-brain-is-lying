@@ -47,7 +47,6 @@ create index if not exists brain_friend_requests_requester_status_idx
 
 create table if not exists public.brain_challenges (
   id uuid primary key default gen_random_uuid(),
-  invite_code text not null unique default upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
   challenger_id uuid not null references auth.users(id) on delete cascade,
   opponent_id uuid not null references auth.users(id) on delete cascade,
   skill text not null check (skill in ('reaction', 'memory', 'attention', 'logic', 'impulse')),
@@ -138,7 +137,6 @@ begin
   if new.challenger_id is distinct from old.challenger_id
      or new.opponent_id is distinct from old.opponent_id
      or new.skill is distinct from old.skill
-     or new.invite_code is distinct from old.invite_code
      or new.created_at is distinct from old.created_at
      or new.expires_at is distinct from old.expires_at then
     raise exception 'Challenge identity fields cannot be changed';
