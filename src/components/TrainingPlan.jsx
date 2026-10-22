@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getTrainingPlan } from '../game/brainFeatures';
-import './phase-ab.css';
+import '../phase-ab.css';
 
 export default function TrainingPlan({ player, onHome, onPlay, onWeekly }) {
   const [minutes, setMinutes] = useState(10);
