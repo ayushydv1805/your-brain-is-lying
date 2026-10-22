@@ -159,7 +159,7 @@ export async function submitChallengeScore(challengeId, userId, run, skill) {
   const normalized = getCompetitiveScore(run, skill);
   const client = requireClient();
   const { data, error } = await client.from('brain_challenge_scores')
-    .insert({ challenge_id: challengeId, user_id: userId, ...normalized })
+    .insert({ challenge_id: challengeId, user_id: userId, score: normalized.score, raw_metric: normalized.rawMetric })
     .select('*').single();
   if (error) {
     if (error.code === '23505') throw new Error('You have already submitted a result for this challenge.');
@@ -196,7 +196,7 @@ export async function publishLeaderboardResult(userId, profile, run, skill) {
   const normalized = getCompetitiveScore(run, skill);
   const client = requireClient();
   const { data, error } = await client.from('brain_leaderboard_entries')
-    .insert({ user_id: userId, skill, ...normalized })
+    .insert({ user_id: userId, skill, score: normalized.score, raw_metric: normalized.rawMetric })
     .select('*').single();
   if (error) throw error;
   return data;
