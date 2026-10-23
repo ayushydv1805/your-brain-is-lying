@@ -42,3 +42,11 @@ test('challenge scores use accuracy on comparable game modes', () => {
 test('a score cannot be created from a run for another skill', () => {
   assert.throws(() => getCompetitiveScore({ type: 'memory', accuracy: 80 }, 'logic'), /Finish a new logic run/);
 });
+
+test('re-merging the same cloud snapshot does not inflate XP or run counts', () => {
+  const first = mergePlayerSnapshots(base, base);
+  const second = mergePlayerSnapshots(first, base);
+  assert.equal(first.xp, second.xp);
+  assert.equal(first.runHistory.length, second.runHistory.length);
+  assert.equal(first.totalRuns, second.totalRuns);
+});
