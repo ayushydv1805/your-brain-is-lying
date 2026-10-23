@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.ayushyadav.yourbrainislying'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.ayushyadav.yourbrainislying'
+        minSdk 29
+        targetSdk 36
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ''
+            versionNameSuffix ''
+        }
+        release {
+            minifyEnabled false
+            // Direct-download builds are intentionally debug-signed until a
+            // private distribution keystore is configured by the owner.
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+tasks.register('syncWebAssets', Sync) {
+    def webBuild = rootProject.file('../dist')
+    from(webBuild)
+    into(layout.projectDirectory.dir('src/main/assets/www'))
+    doFirst {
+        if (!webBuild.exists() || !new File(webBuild, 'index.html').exists()) {
+            throw new GradleException('Missing web build. Run npm run build at the repository root first.')
+        }
+    }
+}
+
+tasks.named('preBuild').configure {
+    dependsOn tasks.named('syncWebAssets')
+}
+
