@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Your Brain Is Lying",
+  "short_name": "Brain Lab",
+  "description": "Fast-paced cognitive challenges for reaction, memory, attention, logic and impulse control.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080b16",
+  "theme_color": "#080b16",
+  "icons": [
+    {
+      "src": "/brain-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

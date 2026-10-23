@@ -4533,3 +4533,18 @@ footer {
   .phase-ab-home { width: min(100% - 28px, 1240px); margin-bottom: 45px; grid-template-columns: 1fr; gap: 12px; padding: 20px; }
   .phase-ab-home-copy h2 { font-size: 32px; }
 }
+
+footer a {
+  color: #737b96;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+footer a:hover,
+footer a:focus-visible {
+  color: #a99aff;
+}
+footer a:focus-visible {
+  outline: 2px solid #58e2cf;
+  outline-offset: 4px;
+  border-radius: 3px;
+}

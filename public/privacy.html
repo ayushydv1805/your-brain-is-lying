@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b16">
+  <meta name="description" content="Privacy and data information for Your Brain Is Lying.">
+  <link rel="icon" type="image/svg+xml" href="/brain-mark.svg">
+  <title>Privacy &amp; Data — Your Brain Is Lying</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#080b16;color:#f4f5ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(circle at 12% 0%,rgba(120,100,255,.15),transparent 32rem),#080b16}
+    main{width:min(820px,calc(100% - 36px));margin:0 auto;padding:32px 0 64px}
+    nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0 34px;border-bottom:1px solid rgba(255,255,255,.09)}
+    nav a{color:#b8adff;text-decoration:none;font-size:14px}
+    .brand{font-size:11px;letter-spacing:.16em;font-weight:800;color:#a8efdF}
+    .eyebrow{margin:34px 0 8px;color:#99ead9;font-size:11px;letter-spacing:.2em;font-weight:800}
+    h1{font-size:clamp(32px,6vw,54px);line-height:1.05;letter-spacing:-.045em;margin:0 0 16px}
+    .intro{color:#aeb5cd;font-size:16px;line-height:1.75;max-width:680px}
+    article{margin-top:34px;padding:24px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.025)}
+    h2{font-size:19px;margin:0 0 12px}
+    p,li{font-size:14px;line-height:1.8;color:#b4bbd1}
+    ul{padding-left:22px;margin-bottom:0}
+    a{color:#b8adff}
+    .note{padding:14px 16px;border-left:3px solid #61ddc8;background:rgba(97,221,200,.06);border-radius:0 10px 10px 0}
+    footer{margin-top:35px;color:#747c98;font-size:12px;line-height:1.7}
+  </style>
+</head>
+<body>
+  <main>
+    <nav><span class="brand">YOUR BRAIN IS LYING</span><a href="/">← Back to the app</a></nav>
+    <p class="eyebrow">PRIVACY &amp; DATA</p>
+    <h1>Your practice is yours.</h1>
+    <p class="intro">This notice explains how Your Brain Is Lying handles information in local-profile mode and in optional cloud mode. The app's brain-game scores are practice metrics, not medical or formal intelligence assessments.</p>
+
+    <article>
+      <h2>1. Local profiles</h2>
+      <p>Without cloud configuration, profile details and game progress are stored in your browser's local storage on the device you are using. This can include a display name, email label for the local profile, XP, level, personal bests, activity dates, achievements and saved run summaries.</p>
+      <p>Local profiles do not sync to other devices. Clearing browser/site data may remove them. Use the app's backup feature before clearing data or changing devices.</p>
+    </article>
+
+    <article>
+      <h2>2. Optional cloud accounts</h2>
+      <p>When the operator configures Supabase and you choose cloud sign-up, Supabase Auth processes your email address and account credentials. The app stores a public player handle, display name, optional avatar choice, and a saved progress snapshot in the connected database. The snapshot can include game summaries, scores, streaks and achievements.</p>
+      <p>Cloud progress is associated with your account and is intended to be available across devices. It requires an internet connection. Supabase processes the information under its own service terms and privacy policy.</p>
+    </article>
+
+    <article>
+      <h2>3. Friends, challenges and leaderboards</h2>
+      <ul>
+        <li>Friend requests and challenges record the participating accounts, status, skill and timestamps.</li>
+        <li>Player handles and display names are visible to signed-in players so they can find one another.</li>
+        <li>Publishing a score to a leaderboard is opt-in and is off by default. If enabled, the selected handle/avatar and submitted score may appear in that ranking.</li>
+        <li>Leaderboard scores are submitted by the browser and are intended for friendly competition only.</li>
+      </ul>
+    </article>
+
+    <article>
+      <h2>4. Shared Brain Passport links</h2>
+      <p>When you create and share a Brain Passport link, the selected summary is placed in the link itself. Anyone who gets that link may be able to view the summary. The link is designed not to contain your raw run history or individual test answers. Review a passport before sharing it.</p>
+    </article>
+
+    <article>
+      <h2>5. Tracking, sharing and security</h2>
+      <p>The app does not include an advertising or analytics SDK and does not send game results to a generative-AI service. Hosting, authentication, database and network providers may process technical data needed to deliver their services. Do not put secrets in profile names or public handles.</p>
+      <p>Only configure the browser app with a Supabase publishable/anonymous client key. A Supabase service-role key must never be placed in a browser build. Database access depends on the Row Level Security policies supplied with this project.</p>
+    </article>
+
+    <article>
+      <h2>6. Retention and deletion</h2>
+      <p>Local data remains in your browser until you delete it or the browser removes it. Backups are files you control. Cloud data remains in the configured database until the project operator deletes it; this app currently has no self-service cloud account deletion button.</p>
+      <p>For an account/data removal request, contact the project maintainer via the <a href="https://github.com/ayushydv1805/your-brain-is-lying">project repository</a>. Do not publish passwords, email addresses or other private account details in a public issue. The operator should verify a request before deleting account data.</p>
+    </article>
+
+    <article>
+      <h2>7. Choices and questions</h2>
+      <p>You can use the app in local mode without setting up a cloud account. In cloud mode, leaderboard publishing is optional. You can sign out or stop using the app at any time; signing out alone does not erase cloud data already stored for the account.</p>
+      <p class="note">This is the project's current practical privacy notice, not legal advice. A public launch operator should review it against the actual deployment, hosting settings and applicable requirements.</p>
+    </article>
+    <footer>Updated October 23, 2026. Your Brain Is Lying · <a href="/">Return to the app</a>.</footer>
+  </main>
+</body>
+</html>

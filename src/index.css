@@ -31,3 +31,69 @@ button:focus-visible {
   outline: 2px solid #9ea7ff;
   outline-offset: 4px;
 }
+
+.runtime-recovery {
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 22px;
+  text-align: center;
+  color: #f4f5ff;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(111, 92, 255, .18), transparent 34%),
+    #080b16;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.runtime-recovery-mark {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid rgba(166, 152, 255, .38);
+  border-radius: 24px;
+  background: rgba(123, 104, 238, .12);
+  font-size: 38px;
+}
+.runtime-recovery-kicker {
+  margin: 28px 0 10px;
+  color: #91e7db;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .2em;
+}
+.runtime-recovery h1 {
+  max-width: 620px;
+  margin: 0;
+  font-size: clamp(30px, 6vw, 54px);
+  letter-spacing: -.045em;
+}
+.runtime-recovery p:not(.runtime-recovery-kicker) {
+  max-width: 470px;
+  color: #a8aec3;
+  line-height: 1.7;
+}
+.runtime-recovery button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 13px 20px;
+  border: 0;
+  border-radius: 12px;
+  color: #080b16;
+  background: #a99aff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.runtime-recovery button:focus-visible {
+  outline: 3px solid #58e2cf;
+  outline-offset: 4px;
+}
+.runtime-recovery small {
+  margin-top: 20px;
+  color: #79819b;
+}

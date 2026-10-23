@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabaseClient.js';
-import { hydrateCloudProgress, mergePlayerSnapshots, pushCloudProgress } from '../game/cloudProgress.js';
+import { hydrateCloudProgress, mergePlayerSnapshots, pullCloudProgress, pushCloudProgress } from '../game/cloudProgress.js';
 import { getPlayerStorageStatus, loadPlayer, savePlayer } from '../game/storage.js';
 import { getMyProfile, saveMyProfile } from '../game/socialApi.js';
 import { CloudAuthContext } from '../lib/CloudAuthContext.jsx';
@@ -71,6 +71,7 @@ export default function CloudAuthGate({ children }) {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const importInput = useRef(null);
   const saveTimer = useRef(null);
+  const remoteRefreshTimer = useRef(null);
   const syncLock = useRef(false);
   const lastCloudPayload = useRef('');
   const loadedUserId = useRef(null);
@@ -155,28 +156,49 @@ export default function CloudAuthGate({ children }) {
         setSyncStatus('Offline · saved on this device');
         return;
       }
-      window.clearTimeout(saveTimer.current);
-      setSyncStatus('Syncing progress…');
       const playerSnapshot = event.detail.player;
-      if (stableStringify(playerSnapshot) === lastCloudPayload.current) return;
-      saveTimer.current = window.setTimeout(async () => {
-        if (disposed || syncLock.current) return;
+      const fingerprint = stableStringify(playerSnapshot);
+      window.clearTimeout(saveTimer.current);
+      if (fingerprint === lastCloudPayload.current) {
+        setSyncStatus('Cloud synced');
+        return;
+      }
+      setSyncStatus('Syncing progress…');
+
+      const syncSnapshot = async () => {
+        if (disposed) return;
+        // Do not silently drop a local save while another sync is running.
+        if (syncLock.current) {
+          saveTimer.current = window.setTimeout(syncSnapshot, 350);
+          return;
+        }
         syncLock.current = true;
         try {
           await pushCloudProgress(userId, playerSnapshot);
-          lastCloudPayload.current = stableStringify(playerSnapshot);
+          lastCloudPayload.current = fingerprint;
           if (!disposed) setSyncStatus('Cloud synced');
         } catch (cause) {
           if (!disposed) setSyncStatus('Saved here · cloud sync failed');
           console.error('Progress sync failed:', cause);
         } finally {
           syncLock.current = false;
+          // A player can finish another round while this request is in flight.
+          const latestPlayer = loadPlayer();
+          if (!disposed && navigator.onLine && stableStringify(latestPlayer) !== fingerprint) {
+            queueSave({ detail: { player: latestPlayer } });
+          }
         }
-      }, 850);
+      };
+      saveTimer.current = window.setTimeout(syncSnapshot, 850);
     };
 
     const refreshRemote = async (remoteData) => {
-      if (disposed || !remoteData || syncLock.current) return;
+      if (disposed || !remoteData) return;
+      if (syncLock.current) {
+        window.clearTimeout(remoteRefreshTimer.current);
+        remoteRefreshTimer.current = window.setTimeout(() => refreshRemote(remoteData), 350);
+        return;
+      }
       const remoteFingerprint = stableStringify(remoteData);
       if (remoteFingerprint === lastCloudPayload.current) return;
       syncLock.current = true;
@@ -202,10 +224,44 @@ export default function CloudAuthGate({ children }) {
     };
 
     const onOnline = () => {
+      if (disposed) return;
       setSyncStatus('Reconnecting…');
-      pushCloudProgress(userId, loadPlayer())
-        .then(() => { lastCloudPayload.current = stableStringify(loadPlayer()); setSyncStatus('Cloud synced'); })
-        .catch(() => setSyncStatus('Saved here · cloud sync failed'));
+      window.clearTimeout(saveTimer.current);
+
+      const reconnect = async () => {
+        if (disposed) return;
+        if (syncLock.current) {
+          saveTimer.current = window.setTimeout(reconnect, 350);
+          return;
+        }
+        syncLock.current = true;
+        try {
+          // Merge first: pushing only this device's copy here could erase progress
+          // made on another device while this one was offline.
+          const cloudRow = await pullCloudProgress(userId);
+          if (disposed) return;
+          const localPlayer = loadPlayer();
+          const mergedPlayer = cloudRow?.player_data
+            ? mergePlayerSnapshots(localPlayer, cloudRow.player_data)
+            : localPlayer;
+          const localComparable = stableStringify({ ...localPlayer, savedAt: undefined });
+          const mergedComparable = stableStringify({ ...mergedPlayer, savedAt: undefined });
+          if (localComparable !== mergedComparable && !savePlayer(mergedPlayer)) {
+            throw new Error('Could not save the merged progress on this device.');
+          }
+          if (disposed) return;
+          await pushCloudProgress(userId, loadPlayer());
+          lastCloudPayload.current = stableStringify(loadPlayer());
+          if (!disposed) setSyncStatus('Cloud synced');
+        } catch (cause) {
+          if (!disposed) setSyncStatus('Saved here · cloud sync failed');
+          console.error('Progress reconnect failed:', cause);
+        } finally {
+          syncLock.current = false;
+        }
+      };
+
+      saveTimer.current = window.setTimeout(reconnect, 0);
     };
 
     window.addEventListener('brain-player-saved', queueSave);
@@ -227,6 +283,7 @@ export default function CloudAuthGate({ children }) {
     return () => {
       disposed = true;
       window.clearTimeout(saveTimer.current);
+      window.clearTimeout(remoteRefreshTimer.current);
       window.removeEventListener('brain-player-saved', queueSave);
       window.removeEventListener('online', onOnline);
       supabase.removeChannel(channel);
@@ -437,6 +494,7 @@ export default function CloudAuthGate({ children }) {
         <button type="button" className="auth-link-button" onClick={() => { setScreen(recovery ? 'login' : 'forgot'); setError(''); setNotice(''); }}>{recovery ? 'Back to sign in' : 'Forgot password?'}</button>
         <p className="auth-privacy-note"><span aria-hidden="true">▣</span> Your account is securely managed by Supabase. Your private game history is only available to your account.</p>
         <p className="auth-security-note">Cloud sync requires the schema in supabase/phase-c-d-schema.sql. The app falls back to device-local profiles until cloud credentials are configured.</p>
+        <p className="auth-security-note"><a href="/privacy.html">Read the privacy and data notice</a></p>
       </section></main>
     );
   }

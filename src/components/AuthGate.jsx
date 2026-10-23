@@ -186,6 +186,7 @@ function LocalAuthGate({ children }) {
           <p className="auth-security-note">
             This is device-level sign-in, not a cloud account. Keep a backup if you clear app data or change devices.
           </p>
+          <p className="auth-security-note"><a href="/privacy.html">Read the privacy and data notice</a></p>
         </section>
       </main>
     );
