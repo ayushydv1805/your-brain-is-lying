@@ -9,6 +9,7 @@ import {
   getPassportTotalRuns,
 } from '../game/passport';
 import { getSkillMastery } from '../game/difficultyEngine';
+import { downloadTextFile } from '../game/downloads.js';
 import '../passport.css';
 
 const ICONS = {
@@ -112,15 +113,7 @@ export default function BrainPassport({
 
   const downloadCard = () => {
     const svg = createPassportSvg(ownSnapshot);
-    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'brain-passport.svg';
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
+    downloadTextFile('brain-passport.svg', svg, 'image/svg+xml;charset=utf-8');
     setNotice('Passport card exported.');
   };
 
