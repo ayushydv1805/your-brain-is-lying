@@ -11,7 +11,7 @@
   "theme_color": "#080b16",
   "icons": [
     {
-      "src": "/brain-mark.svg",
+      "src": "./brain-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
