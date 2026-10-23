@@ -11,6 +11,8 @@ import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebChromeClient.FileChooserParams;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -22,7 +24,9 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private static final String APP_ROOT = "file:///android_asset/www/";
+    private static final int FILE_CHOOSER_REQUEST_CODE = 4321;
     private WebView webView;
+    private ValueCallback<Uri[]> fileChooserCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,22 @@ public class MainActivity extends Activity {
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
         webView.addJavascriptInterface(new DownloadBridge(), "AndroidBridge");
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> filePathCallback, FileChooserParams params) {
+                if (fileChooserCallback != null) fileChooserCallback.onReceiveValue(null);
+                fileChooserCallback = filePathCallback;
+                try {
+                    startActivityForResult(params.createIntent(), FILE_CHOOSER_REQUEST_CODE);
+                    return true;
+                } catch (Exception error) {
+                    fileChooserCallback.onReceiveValue(null);
+                    fileChooserCallback = null;
+                    Toast.makeText(MainActivity.this, "Could not open the file picker.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            }
+        });
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -87,6 +106,19 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         if (webView != null) webView.saveState(outState);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
+            if (fileChooserCallback != null) {
+                Uri selected = resultCode == RESULT_OK && data != null ? data.getData() : null;
+                fileChooserCallback.onReceiveValue(selected == null ? null : new Uri[]{ selected });
+                fileChooserCallback = null;
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
