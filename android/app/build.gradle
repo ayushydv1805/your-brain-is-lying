@@ -15,10 +15,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            applicationIdSuffix ''
-            versionNameSuffix ''
-        }
         release {
             minifyEnabled false
             // Direct-download builds are intentionally debug-signed until a
