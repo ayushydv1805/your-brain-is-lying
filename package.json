@@ -18,5 +18,49 @@
   "devDependencies": {
     "vite": "^7.1.7",
     "@vitejs/plugin-react": "^5.0.4"
+  },
+  "main": "desktop/main.cjs",
+  "build": {
+    "appId": "com.ayushyadav.yourbrainislying",
+    "productName": "Your Brain Is Lying",
+    "electronVersion": "45.0.0",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/**/*",
+      "package.json",
+      "README.md"
+    ],
+    "asar": true,
+    "npmRebuild": false,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "Your-Brain-Is-Lying-Setup.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "perMachine": false
+    },
+    "portable": {
+      "artifactName": "Your-Brain-Is-Lying-Portable.${ext}"
+    }
   }
 }

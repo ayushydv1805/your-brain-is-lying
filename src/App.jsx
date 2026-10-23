@@ -1173,7 +1173,7 @@ function App() {
       <footer>
         <span>YOUR BRAIN IS LYING © 2026</span>
         <span>Phase 12 · Brain Passport</span>
-        <a href="/privacy.html">Privacy &amp; data</a>
+        <a href="./privacy.html">Privacy &amp; data</a>
       </footer>
 
       {levelUp && (

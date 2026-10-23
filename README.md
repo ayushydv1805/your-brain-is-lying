@@ -2,6 +2,20 @@
 
 A fast, arcade-style brain-training app built with React and Vite. Play five short cognitive challenges, track practice over time, and optionally sync progress or compete with friends using Supabase.
 
+
+## Download for Windows or Android
+
+The repository builds a Windows installer, a Windows portable EXE and an Android APK from the same app source.
+
+- **[Windows Setup EXE — direct download](https://github.com/ayushydv1805/your-brain-is-lying/releases/latest/download/Your-Brain-Is-Lying-Setup.exe)**
+- **[Windows Portable EXE — direct download](https://github.com/ayushydv1805/your-brain-is-lying/releases/latest/download/Your-Brain-Is-Lying-Portable.exe)**
+- **[Android APK — direct download](https://github.com/ayushydv1805/your-brain-is-lying/releases/latest/download/Your-Brain-Is-Lying-Android.apk)**
+- [All releases and previous builds](https://github.com/ayushydv1805/your-brain-is-lying/releases/latest)
+- [Installation notes and known signing limits](DOWNLOADS.md)
+
+These links become available after the GitHub Actions **Build PC and Android downloads** workflow has successfully built both platforms and published its release assets. The Windows EXE is currently unsigned, so SmartScreen may show a warning. The Android APK is debug-signed for sideload installation; it is not a Play Store package. See DOWNLOADS.md for notes on future APK updates and backups.
+
+
 ## What is in the app
 
 - **Five playable challenges:** Reaction, Memory, Attention, Logic and Impulse Control.

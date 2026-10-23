@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient.js';
 import { hydrateCloudProgress, mergePlayerSnapshots, pullCloudProgress, pushCloudProgress } from '../game/cloudProgress.js';
 import { getPlayerStorageStatus, loadPlayer, savePlayer } from '../game/storage.js';
 import { getMyProfile, saveMyProfile } from '../game/socialApi.js';
+import { downloadTextFile } from '../game/downloads.js';
 import { CloudAuthContext } from '../lib/CloudAuthContext.jsx';
 import './AuthGate.css';
 
@@ -390,21 +391,14 @@ export default function CloudAuthGate({ children }) {
 
   const backupProgress = () => {
     const player = loadPlayer();
-    const blob = new Blob([JSON.stringify({
+    const backup = {
       app: 'Your Brain Is Lying',
       schemaVersion: 2,
       exportedAt: new Date().toISOString(),
       profile: { handle: profile?.handle, displayName: profile?.display_name, email: session?.user?.email },
       player,
-    }, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'your-brain-is-lying-cloud-backup.json';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    };
+    downloadTextFile('your-brain-is-lying-cloud-backup.json', JSON.stringify(backup, null, 2), 'application/json;charset=utf-8');
   };
 
 

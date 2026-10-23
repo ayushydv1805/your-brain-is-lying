@@ -1,4 +1,5 @@
 import { getWeeklySummary } from '../game/brainFeatures';
+import { downloadTextFile } from '../game/downloads.js';
 import '../phase-ab.css';
 
 function formatRange(startValue, endValue) {
@@ -25,15 +26,7 @@ export default function WeeklyReport({ player, onHome, onPlan, onPlay }) {
       skillBreakdown: summary.bySkill.map(({ label, runs, xp }) => ({ label, runs, xp })),
       dailyActivity: summary.days.map(({ dateLabel, runs, xp }) => ({ date: dateLabel, runs, xp })),
     };
-    const blob = new Blob([JSON.stringify(body, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'your-brain-is-lying-weekly-report.json';
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
+    downloadTextFile('your-brain-is-lying-weekly-report.json', JSON.stringify(body, null, 2), 'application/json;charset=utf-8');
   };
   const hasData = summary.totalRuns > 0 || summary.previousRuns > 0;
 

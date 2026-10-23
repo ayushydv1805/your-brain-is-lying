@@ -1,0 +1,131 @@
+name: Build PC and Android downloads
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-android-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Windows installer and portable EXE
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install app dependencies
+        run: npm ci
+      - name: Run app tests and production build
+        run: npm run check
+      - name: Package Windows downloads
+        run: npx --yes electron-builder@26.15.3 --win nsis portable --x64
+      - name: Upload Windows installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: |
+            dist-electron/Your-Brain-Is-Lying-Setup.exe
+            dist-electron/Your-Brain-Is-Lying-Portable.exe
+          if-no-files-found: error
+          retention-days: 7
+
+  build-android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # Explicitly avoid the obsolete "tools" SDK package in older action revisions.
+          packages: platform-tools
+      - name: Install Android SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install app dependencies
+        run: npm ci
+      - name: Run app tests and production build
+        run: npm run check
+      - name: Build installable Android APK
+        run: gradle --no-daemon --stacktrace -p android assembleDebug
+      - name: Stage the direct-download APK
+        run: |
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk release/Your-Brain-Is-Lying-Android.apk
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: release/Your-Brain-Is-Lying-Android.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-downloads:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    name: Publish direct download links
+    runs-on: ubuntu-latest
+    needs:
+      - build-windows
+      - build-android
+    steps:
+      - name: Download Windows installers
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installers
+          path: release
+      - name: Download Android APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: release
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: downloads-${{ github.sha }}
+          target_commitish: ${{ github.sha }}
+          name: Your Brain Is Lying — Windows + Android
+          body: |
+            Installable builds generated from commit ${{ github.sha }}.
+
+            **Windows:** use the setup installer or portable EXE.
+            **Android:** install the APK directly. This initial APK is signed with Gradle's debug signing key to allow direct sideload installation; Play Store publishing requires a separate private release-signing key.
+
+            For the full source and setup details, see the repository README.
+          files: |
+            release/Your-Brain-Is-Lying-Setup.exe
+            release/Your-Brain-Is-Lying-Portable.exe
+            release/Your-Brain-Is-Lying-Android.apk
+          make_latest: true
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
