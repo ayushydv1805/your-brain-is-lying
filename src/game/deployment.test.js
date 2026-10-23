@@ -26,3 +26,10 @@ test('Vercel deployment config uses the lockfile and Vite output directory', asy
   assert.ok(config.headers.some((entry) => entry.source === '/sw.js'));
 });
 
+test('offline worker pre-caches the privacy page and production assets', async () => {
+  const worker = await readFile(new URL('../../public/sw.js', import.meta.url), 'utf8');
+  assert.match(worker, /'\/privacy\.html'/);
+  assert.match(worker, /\/assets\\\//);
+  assert.match(worker, /cache\.addAll\(APP_SHELL\)/);
+});
+
