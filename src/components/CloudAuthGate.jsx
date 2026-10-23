@@ -494,6 +494,7 @@ export default function CloudAuthGate({ children }) {
         <button type="button" className="auth-link-button" onClick={() => { setScreen(recovery ? 'login' : 'forgot'); setError(''); setNotice(''); }}>{recovery ? 'Back to sign in' : 'Forgot password?'}</button>
         <p className="auth-privacy-note"><span aria-hidden="true">▣</span> Your account is securely managed by Supabase. Your private game history is only available to your account.</p>
         <p className="auth-security-note">Cloud sync requires the schema in supabase/phase-c-d-schema.sql. The app falls back to device-local profiles until cloud credentials are configured.</p>
+        <p className="auth-security-note"><a href="/privacy.html">Read the privacy and data notice</a></p>
       </section></main>
     );
   }
