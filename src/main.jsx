@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 );
 
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+if (import.meta.env.PROD && (location.protocol === 'http:' || location.protocol === 'https:') && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((error) => {
       // Core gameplay still works without offline caching.
